@@ -1,0 +1,32 @@
+body {
+	background-color: black;
+}
+
+video {
+	position: fixed;
+	display: none;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+}
+
+#overlay {
+	position: fixed;
+	display: none;
+	width: 100%;
+	height: 20px;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #750000;
+	color: white;
+	font-family: Arial;
+	font-weight: bold;
+	border-bottom: 1px solid white;
+	z-index: 2;
+}
