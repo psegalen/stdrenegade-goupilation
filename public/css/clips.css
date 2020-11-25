@@ -7,18 +7,38 @@ img {
 }
 
 input {
-  border: 2px solid blue;
+  border: 2px solid back;
   border-radius: 4px;
   text-align: center;
+  height: 20px;
+  font-size: 12px;
 }
 
 a {
   color: #0099FF;
 }
 
-.annotation {
-	color: #999999;
+
+/********************/
+/* Import / Export  */
+/********************/
+
+#import-export-ribbon {
+  display: none;
 }
+
+#importExport {
+  display: none;
+}
+
+#importExportInput {
+  height: 600px;
+  width: 1000px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+}
+
 
 /********************/
 /* Ribbon           */
@@ -29,6 +49,13 @@ a {
   padding-right: 5px;
   padding-bottom: 3px;
   padding-left: 5px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  border-bottom: 2px solid #550506;
+}
+
+.ribbon-group {
   margin: auto;
   display: flex;
   justify-content: center;
@@ -43,29 +70,85 @@ a {
   transform: translateY(4px); 
 }
 
-.group-fetch {
+.group {
   border-radius: 10px;
+  padding: 3px;
+  margin: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fect-group {
   border: 2px solid rgb(0, 102, 255);
   background-color: rgb(0, 102, 255, 0.3);
-  padding: 3px;
-  margin: 3px;
 }
 
-.group-select {
-  border-radius: 10px;
+.select-group {
   border: 2px solid rgb(255, 163, 26);
   background-color: rgb(255, 163, 26, 0.3);
-  padding: 3px;
-  margin: 3px;
 }
 
-.group-save {
-  border-radius: 10px;
+.save-group {
   border: 2px solid rgb(76, 175, 80);
   background-color: rgb(76, 175, 80, 0.3);
-  padding: 3px;
-  margin: 3px;
 }
+
+.sort-group {
+  border: 2px solid rgb(204, 0, 0);
+  background-color: rgb(204, 0, 0, 0.3);
+}
+
+.goupilation-group {
+  border: 2px solid rgb(153, 0, 255);
+  background-color: rgb(153, 0, 255, 0.3);
+}
+
+/********************/
+/* Buttons          */
+/********************/
+
+.button {
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  border: 2px solid black;
+  cursor: pointer;
+}
+
+.button:active {
+  transform: translateY(2px);
+}
+
+.submit-button {
+  background-color: rgb(0, 102, 255);
+}
+.select-button {
+  background-color: rgb(255, 163, 26);
+}
+
+.save-button {
+  background-color: rgb(76, 175, 80);
+}
+
+.sort-button {
+  background-color: rgb(204, 0, 0);
+}
+
+.goupilation-button {
+  background-color: rgb(153, 0, 255);
+}
+
+.toggle-button {
+  background-color: rgb(200, 200, 200, 0.6);
+  height: 70px;
+}
+
 
 /********************/
 /* Table            */
@@ -92,34 +175,6 @@ a {
   vertical-align:middle;
 }
 
-/********************/
-/* Buttons          */
-/********************/
-
-.button {
-  border: none;
-  color: white;
-  padding: 5px 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 14px;
-  margin: 4px 2px;
-  border: 2px solid black;
-  cursor: pointer;
-}
-
-.button:active {
-  transform: translateY(2px);
-}
-
-.submit-button {
-  background-color: #0066FF;
-}
-.select-button {
-  background-color: #FFA31A;
-}
-
-.save-button {
-  background-color: #4CAF50;
+.annotation {
+  color: #999999;
 }

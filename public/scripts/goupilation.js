@@ -15,124 +15,12 @@ const CLIP_INDEX = 'clipIndex'; // root id for clip selection index
 let authToken = "";
 
 //***********************//
-// Twitch API calls      //
-//***********************//
-
-function getToken() {
-	if (authToken.length === 0) {
-		return fetch("https://id.twitch.tv/oauth2/token?client_id=rssu2h41e352q0x8qmu8m9m7c1ymaw&client_secret=0xjzyddhbn30w0jjqliqen3kjsrn36&grant_type=client_credentials"
-		, { method: "POST"})
-			.then((response) => response.json())
-			.then((data) => data.access_token)
-	} else {
-		return Promise.resolve(authToken);
-	}
-}
-
-function fetchClips(broadcasterId, startDate, endDate) {
-	return getToken().then((token) => {
-		authToken = token;
-
-		var url = 'https://api.twitch.tv/helix/clips' + '?broadcaster_id=' + broadcasterId + '&started_at=' + startDate + '&ended_at=' + endDate + '&first=100';
-		
-		var request = new Request(url, {
-			method: 'GET',
-			headers: new Headers({
-				'Client-ID': CLIENT_ID,
-				'Authorization': `Bearer ${authToken}`
-			})
-		});
-		
-		return fetch(request).then(function(response) {
-			return response.json();
-		});
-	});
-}
-
-
-//***********************//
-// Clips list handling   //
-//***********************//
-
-function getClipsCount() {
-	return document.getElementById('clipsTable').childElementCount;
-}
-
-function getSelectedClips() {
-	// initialize object
-	var selectedClips = {data:[]};
-	for(let i=0; i<selectCount; i++) {
-		selectedClips.data.push(null);
-	}
-	
-	// store selected clips with valid index
-	var clipsCount = getClipsCount();
-	for(let i=0; i<clipsCount; i++) {
-		let currentInput = document.getElementById(CLIP_INDEX + i);
-		let currentValue = parseInt(currentInput.value);
-		if(!isNaN(currentValue) && currentValue <= selectCount) {
-			selectedClips.data[currentValue-1] = clips.data[i];
-		}
-	}
-	
-	// remove null objects
-	selectedClips.data = selectedClips.data.filter(function(clip) {
-		return clip != null;
-	});
-	
-	return selectedClips;
-}
-
-function getSavedClips() {
-	var savedClips = localStorage.getItem('savedClips');
-	if(savedClips != null) {
-		return JSON.parse(savedClips);
-	} else {
-		return {data:[]};
-	}
-}
-
-function loadSavedClips() {
-	clips = getSavedClips()
-	createClipsTable();
-}
-
-function filterSelectedClips() {
-	clips = getSelectedClips();
-	createClipsTable();
-}
-
-function addSelectedClips() {
-	clips.data = getSavedClips().data.concat(getSelectedClips().data);
-	createClipsTable();
-	save();
-}
-
-function saveSelectedClips() {
-	clips = getSelectedClips();
-	createClipsTable();
-	save();
-}
-
-function save() {
-	localStorage.removeItem('savedClips');
-    localStorage.setItem('savedClips', JSON.stringify(clips));
-}
-
-function deleteSavedClips() {
-	clips = {data:[]};
-	createClipsTable();
-	localStorage.removeItem('savedClips');
-}
-
-
-//***********************//
 // Video loop            //
 //***********************//
 
 function initVideoPlayers() {
 	
-	clips = getSavedClips();
+	clips = getSavedClips('goupilation');
 
 	if(clips.data.length > 0) {			
 		// init members
@@ -224,8 +112,239 @@ function isClipURL(url) {
 
 
 //***********************//
+// Twitch API calls      //
+//***********************//
+
+function getToken() {
+	if (authToken.length === 0) {
+		return fetch("https://id.twitch.tv/oauth2/token?client_id=rssu2h41e352q0x8qmu8m9m7c1ymaw&client_secret=0xjzyddhbn30w0jjqliqen3kjsrn36&grant_type=client_credentials"
+		, { method: "POST"})
+			.then((response) => response.json())
+			.then((data) => data.access_token)
+	} else {
+		return Promise.resolve(authToken);
+	}
+}
+
+function fetchClips(broadcasterId, startDate, endDate) {
+	return getToken().then((token) => {
+		authToken = token;
+
+		var url = 'https://api.twitch.tv/helix/clips' + '?broadcaster_id=' + broadcasterId + '&started_at=' + startDate + '&ended_at=' + endDate + '&first=100';
+		
+		var request = new Request(url, {
+			method: 'GET',
+			headers: new Headers({
+				'Client-ID': CLIENT_ID,
+				'Authorization': `Bearer ${authToken}`
+			})
+		});
+		
+		return fetch(request).then(function(response) {
+			return response.json();
+		});
+	});
+}
+
+
+//***********************//
+// UI elements           //
+//***********************//
+
+function getClipsRibbon() {
+	return document.getElementById('clips-ribbon');
+}
+
+function getImportExportRibbon() {
+	return document.getElementById('import-export-ribbon');
+}
+
+function getClipsList() {
+	return document.getElementById('clipsList');
+}
+
+function getImportExport() {
+	return document.getElementById('importExport');
+}
+
+function getImportExportInput() {
+	return document.getElementById('importExportInput');
+}
+
+function getSaveList() {
+	return document.getElementById('saveList');;
+}
+
+function getSaveName() {
+	return document.getElementsByName('saveName')[0];
+}
+
+function getSaveNameValue() {
+	return getSaveName().value;
+}
+
+function getClipsTable() {
+	return document.getElementById('clipsTable')
+}
+
+function getClipsCount() {
+	return getClipsTable().childElementCount;
+}
+
+function getSaveButton() {
+	return document.getElementById('save-button');
+}
+
+
+//***********************//
+// Save & Load           //
+//***********************//
+
+function getSaveNames() {
+	var keys = Object.keys(localStorage);
+	var names = [];
+	for (let key of keys) {
+		if(key.startsWith('save:')) names.push(key.substring(5));
+	}
+	return names.sort();
+}
+
+function loadSaveList() {
+	var saveNames = getSaveNames();
+	
+	var saveList = getSaveList();
+	saveList.innerHTML = '';
+	
+	for(let name of saveNames) {
+		let opt = addContent(saveList, 'option');
+		opt.setAttribute('value', name);
+	}
+}
+
+function getSavedClips(name) {
+	var savedClips = localStorage.getItem('save:' + name);
+	if(savedClips != null) {
+		return JSON.parse(savedClips);
+	} else {
+		return {data:[]};
+	}
+}
+
+function loadSavedClips() {
+	clips = getSavedClips(getSaveNameValue());
+	createClipsTable();
+}
+
+function saveSelectedClips() {
+	clips = getSelectedClips();
+	createClipsTable();
+	
+	localStorage.setItem('save:' + getSaveNameValue(), JSON.stringify(clips));
+	loadSaveList();
+}
+
+function deleteSavedClips() {
+	clips = {data:[]};
+	createClipsTable();
+	localStorage.removeItem('save:' + getSaveNameValue());
+	getSaveName().value = '';
+	loadSaveList();
+}
+
+function goupilation() {
+	var goupilationClips = getSelectedClips();
+	localStorage.setItem('save:goupilation', JSON.stringify(goupilationClips));
+}
+
+
+//***********************//
+// Import / Export       //
+//***********************//
+
+function showHideImportExport() {
+	if(isDisplayed(getClipsList())) {
+		hide(getClipsList());
+		hide(getClipsRibbon());
+		show(getImportExport());
+		show(getImportExportRibbon(), 'flex');
+	} else {
+		show(getClipsList());
+		show(getClipsRibbon(), 'flex');
+		hide(getImportExport());
+		hide(getImportExportRibbon());
+	}
+}
+
+function exportAllSaves() {
+	var saveNames = getSaveNames();
+	
+	var allSaves = {};
+	for(let name of saveNames) {
+		let save = {};
+		allSaves[name] = getSavedClips(name);
+	}
+	allSaves = JSON.stringify(allSaves);
+
+	getImportExportInput().value = allSaves;
+}
+
+function importAllSaves(allSaves) {
+	var json = getImportExportInput().value;
+	allSaves = JSON.parse(json);
+	for(let key in allSaves) {
+		localStorage.setItem('save:' + key, JSON.stringify(allSaves[key]));
+	}
+	loadSaveList();
+}
+
+
+//***********************//
+// Selection             //
+//***********************//
+
+function getSelectedClips() {
+	// initialize object
+	var selectedClips = {data:[]};
+	for(let i=0; i<selectCount; i++) {
+		selectedClips.data.push(null);
+	}
+	
+	// store selected clips with valid index
+	var clipsCount = getClipsCount();
+	for(let i=0; i<clipsCount; i++) {
+		let currentInput = document.getElementById(CLIP_INDEX + i);
+		let currentValue = parseInt(currentInput.value);
+		if(!isNaN(currentValue) && currentValue <= selectCount) {
+			selectedClips.data[currentValue-1] = clips.data[i];
+		}
+	}
+	
+	// remove null objects
+	selectedClips.data = selectedClips.data.filter(function(clip) {
+		return clip != null;
+	});
+	
+	return selectedClips;
+}
+
+function filterSelectedClips() {
+	clips = getSelectedClips();
+	createClipsTable();
+}
+
+function addSelectedClips() {
+	clips.data = getSavedClips().data.concat(getSelectedClips().data);
+	createClipsTable();
+}
+
+
+//***********************//
 // Clips list            //
 //***********************//
+
+function initClipsPage() {
+	loadSaveList();
+}
 
 function submitDates() {
 	var startDate = document.getElementById('start_date').value + 'T00:00:00Z';
@@ -233,14 +352,7 @@ function submitDates() {
 	
 	fetchClips(BROADCASTER_ID, startDate, endDate).then( function(json) {
 		clips = json;
-		
-		// sort clips
-		clips.data.sort(function(clip1, clip2) {
-			var date1 = clip1.created_at;
-			var date2 = clip2.created_at;
-			return date1.localeCompare(date2);
-		});
-
+		sortClipsByDate();
 		createClipsTable();
 	});
 }
@@ -378,7 +490,59 @@ function clipSelectionHandler(checkboxId, inputId) {
 				currentInput.value = currentalue - 1;
 			}
 		}
-	}	
+	}
+}
+
+
+//***********************//
+// Sorts                 //
+//***********************//
+
+function sortClipsByDate() {
+	clips.data.sort(function(clip1, clip2) {
+		var date1 = clip1.created_at;
+		var date2 = clip2.created_at;
+		return date2.localeCompare(date1);
+	});	
+}
+
+function sortClipsByViews() {
+	clips.data.sort(function(clip1, clip2) {
+		var views1 = clip1.view_count;
+		var views2 = clip2.view_count;
+		return views2 - views1;
+	});	
+}
+
+function sortClipsByTitle() {
+	clips.data.sort(function(clip1, clip2) {
+		var title1 = clip1.title;
+		var title2 = clip2.title;
+		return title1.localeCompare(title2);
+	});	
+}
+
+function sortClipsByCreator() {
+	clips.data.sort(function(clip1, clip2) {
+		var creator1 = clip1.creator_name;
+		var creator2 = clip2.creator_name;
+		return creator1.localeCompare(creator2);
+	});	
+}
+
+function sortClips() {
+	var opt = document.getElementById('sortOption').value;
+	
+	console.log(opt);
+	
+	switch(opt) {
+		case 'date': sortClipsByDate(); break;
+		case 'views': sortClipsByViews(); break;
+		case 'title': sortClipsByTitle(); break;
+		case 'creator': sortClipsByCreator(); break;
+	}
+	
+	createClipsTable();
 }
 
 
@@ -400,10 +564,15 @@ function addContent(container, type) {
 	return content;
 }
 
-function show(elt) {
-	elt.style.display = 'block';
+function show(elt, style) {
+	if(style == undefined) style = 'block';
+	elt.style.display = style;
 }
 
 function hide(elt) {
 	elt.style.display = 'none';
+}
+
+function isDisplayed(elt) {
+	return elt.style.display != 'none';
 }

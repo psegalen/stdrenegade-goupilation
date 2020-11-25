@@ -5,34 +5,71 @@
 		<script type="text/javascript" src="scripts/authentication.js"></script>
 		<script type="text/javascript" src="scripts/goupilation.js"></script>
 	</head>
-	<body onload="loadSavedClips()">
+	<body onload="initClipsPage()">
 		<div class="ribbon">
-			<div>
-				<div class="group-label">Fetch</div>
-				<div class="group-fetch">
-					<input type="date" id="start_date" name="start_date">
-					<input type="date" id="end_date" name="end_date">
-					<button class="button submit-button" onclick="submitDates()">Submit</button>
+			<div id="clips-ribbon" class="ribbon-group">
+				<div>
+					<div class="group-label">Fetch</div>
+					<div class="group fetch-group">
+						<input type="date" id="start_date" name="start_date">
+						<input type="date" id="end_date" name="end_date">
+						<button class="button submit-button" onclick="submitDates()">Submit</button>
+					</div>
+				</div>
+				<div>
+					<div class="group-label">Select</div>
+					<div class="group select-group">	
+						<button class="button select-button" onclick="setAllClipsSelectionState(true)" title="Select all clips">Select All</button>
+						<button class="button select-button" onclick="setAllClipsSelectionState(false)" title="Unselect all clips">Unselect All</button>
+						<button class="button select-button" onclick="filterSelectedClips()" title="Show only selected clips">Filter Selected</button>
+						<button class="button select-button" onclick="addSelectedClips()" title="Add selected clips to saved clips">Add Selected</button>
+					</div>
+				</div>
+				<div>
+					<div class="group-label">Sort</div>
+					<div class="group sort-group">
+						<select id="sortOption">
+							<option value="date">Date created</option>
+							<option value="views">View count</option>
+							<option value="title">Clip title</option>
+							<option value="creator">Creator name</option>
+						</select>
+						<button class="button sort-button" onclick="sortClips()">Sort</button>
+					</div>
+				</div>
+				<div>
+					<div class="group-label">Save</div>
+					<div class="group save-group">
+						<input type="text" name="saveName" list="saveList" placeholder="Select/Enter save name">
+						<datalist id="saveList"></datalist>
+						<button id="save-button" class="button save-button" onclick="saveSelectedClips()" title="Save selected clips">Save</button>
+						<button id="load-button"  class="button save-button" onclick="loadSavedClips()" title="Load saved clips">Load</button>
+						<button id="delete-button" class="button save-button" onclick="deleteSavedClips()" title="Delete saved clips">Delete</button>
+					</div>
+				</div>
+				<div>
+					<div class="group-label">Goupilation</div>
+					<div class="group goupilation-group">
+						<button id="goupilation-button" class="button goupilation-button" onclick="goupilation()" title="Choos current selection for Goupilation">Select</button>
+					</div>
+				</div>
+			</div>
+			<div id="import-export-ribbon" class="ribbon-group">
+				<div id="import-export-group">
+					<div class="group-label">Import / Export</div>
+					<div class="group group-save">		
+						<button id="import-button" class="button save-button" onclick="importAllSaves()" title="Import saved clips">Import</button>
+						<button id="export-button" class="button save-button" onclick="exportAllSaves()" title="Export saved clips">Export</button>
+					</div>
 				</div>
 			</div>
 			<div>
-				<div class="group-label">Select</div>
-				<div class="group-select">	
-					<button class="button select-button" onclick="setAllClipsSelectionState(true)">Select All</button>
-					<button class="button select-button" onclick="setAllClipsSelectionState(false)">Unselect All</button>
-					<button class="button select-button" onclick="filterSelectedClips()">Filter Selected</button>
-				</div>
-			</div>
-			<div>
-				<div class="group-label">Save</div>
-				<div class="group-save">
-					<button class="button save-button" onclick="addSelectedClips()" title="Add selected clips to saved clips">Add</button>
-					<button class="button save-button" onclick="saveSelectedClips()" title="Save selected clips">Save</button>
-					<button class="button save-button" onclick="loadSavedClips()" title="Load saved clips">Load</button>
-					<button class="button save-button" onclick="deleteSavedClips()" title="Delete saved clips">Delete</button>
-				</div>
+				<button id="toggle-import-export" class="button toggle-button" onclick="showHideImportExport()" title="Import / Export saved clips">&lt;</button>
 			</div>
 		</div>
 		<div id="clipsList"></div>
+		<div id="importExport">
+			<textarea id="importExportInput"></textarea>
+		</div>
 	</body>
 </html>
