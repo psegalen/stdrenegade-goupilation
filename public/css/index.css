@@ -1,0 +1,24 @@
+html {
+  height: 100%;
+}
+
+body {
+  background: #750000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+div {
+  padding: 32px;
+}
+
+a {
+  color: #0099ff;
+  font-size: 64pt;
+  text-decoration: none;
+}
