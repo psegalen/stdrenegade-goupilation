@@ -12,24 +12,40 @@ const BROADCASTER_ID = '89285457'; // StudioRenegade
 const CLIP_SELECTED = 'clipSelected'; // root id for clip selection checkboxes
 const CLIP_INDEX = 'clipIndex'; // root id for clip selection index
 
+let authToken = "";
 
 //***********************//
 // Twitch API calls      //
 //***********************//
 
+function getToken() {
+	if (authToken.length === 0) {
+		return fetch("https://id.twitch.tv/oauth2/token?client_id=rssu2h41e352q0x8qmu8m9m7c1ymaw&client_secret=0xjzyddhbn30w0jjqliqen3kjsrn36&grant_type=client_credentials"
+		, { method: "POST"})
+			.then((response) => response.json())
+			.then((data) => data.access_token)
+	} else {
+		return Promise.resolve(authToken);
+	}
+}
+
 function fetchClips(broadcasterId, startDate, endDate) {
-	var url = 'https://api.twitch.tv/helix/clips' + '?broadcaster_id=' + broadcasterId + '&started_at=' + startDate + '&ended_at=' + endDate + '&first=100';
-	
-	var request = new Request(url, {
-		method: 'GET',
-		headers: new Headers({
-			'Client-ID': CLIENT_ID,
-			'Authorization': AUTHORIZATION
-		})
-	});
-	
-	return fetch(request).then(function(response) {
-		return response.json();
+	return getToken().then((token) => {
+		authToken = token;
+
+		var url = 'https://api.twitch.tv/helix/clips' + '?broadcaster_id=' + broadcasterId + '&started_at=' + startDate + '&ended_at=' + endDate + '&first=100';
+		
+		var request = new Request(url, {
+			method: 'GET',
+			headers: new Headers({
+				'Client-ID': CLIENT_ID,
+				'Authorization': `Bearer ${authToken}`
+			})
+		});
+		
+		return fetch(request).then(function(response) {
+			return response.json();
+		});
 	});
 }
 
