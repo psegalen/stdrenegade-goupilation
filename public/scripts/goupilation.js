@@ -142,8 +142,8 @@ function initVideoPlayers() {
 		videoIndex = 0;
 		
 		// create video sources
-		videoSource1 = addVideoSource(videoPlayer1, 'media/generique.mp4');		
-		videoSource2 = addVideoSource(videoPlayer2, 'media/transition.mp4');
+		videoSource1 = addVideoSource(videoPlayer1, 'https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Fgenerique.mp4?alt=media&token=94374b9a-27fc-43a8-ac5f-6f3b252f0771');		
+		videoSource2 = addVideoSource(videoPlayer2, 'https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.mp4?alt=media&token=cee192d9-0897-408a-b5ca-03d8e410f498');
 			
 		// set event handlers
 		videoPlayer1.addEventListener('ended', clipEndedHandler);
@@ -186,7 +186,7 @@ function clipEndedHandler() {
 	if(videoIndex < clips.data.length) {
 		nextClip(videoSource1);
 	} else {
-		videoSource1.src = 'media/generique.mp4';
+		videoSource1.src = 'https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Fgenerique.mp4?alt=media&token=94374b9a-27fc-43a8-ac5f-6f3b252f0771';
 		videoPlayer1.removeEventListener('ended', clipEndedHandler);
 	}
 	videoPlayer1.load();
