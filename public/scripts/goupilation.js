@@ -1,18 +1,17 @@
-var clips;
+let clips;
 
-var videoPlayer1, videoPlayer2;
-var videoSource1, videoSource2;
-var videoOverlay;
+let videoPlayer1, videoPlayer2;
+let videoSource1, videoSource2;
+let videoOverlay;
 
-var videoIndex;
-var selectCount;
-
-const BROADCASTER_ID = '89285457'; // StudioRenegade
-
-const CLIP_SELECTED = 'clipSelected'; // root id for clip selection checkboxes
-const CLIP_INDEX = 'clipIndex'; // root id for clip selection index
+let videoIndex;
+let selectCount;
 
 let authToken = "";
+
+const BROADCASTER_ID = '89285457'; // StudioRenegade
+const CLIENT_ID = "rssu2h41e352q0x8qmu8m9m7c1ymaw";
+
 
 //***********************//
 // Video loop            //
@@ -151,49 +150,71 @@ function fetchClips(broadcasterId, startDate, endDate) {
 // UI elements           //
 //***********************//
 
-function getClipsRibbon() {
-	return document.getElementById('clips-ribbon');
-}
+var UI = {
+	
+	CLIP_SELECTED: 'clipSelected', // root id for clip selection checkboxes
+	CLIP_INDEX: 'clipIndex', // root id for clip selection index
+	
+	getClipsRibbon: function() {
+		return document.getElementById('clips-ribbon');
+	},
 
-function getImportExportRibbon() {
-	return document.getElementById('import-export-ribbon');
-}
+	getImportExportRibbon: function() {
+		return document.getElementById('import-export-ribbon');
+	},
 
-function getClipsList() {
-	return document.getElementById('clipsList');
-}
+	getStartDate: function() {
+		return document.getElementById('start_date');
+	},
 
-function getImportExport() {
-	return document.getElementById('importExport');
-}
+	getEndDate: function() {
+		return document.getElementById('end_date');
+	},
 
-function getImportExportInput() {
-	return document.getElementById('importExportInput');
-}
+	getClipsList: function() {
+		return document.getElementById('clipsList');
+	},
 
-function getSaveList() {
-	return document.getElementById('saveList');;
-}
+	getImportExport: function() {
+		return document.getElementById('importExport');
+	},
 
-function getSaveName() {
-	return document.getElementsByName('saveName')[0];
-}
+	getImportExportInput: function() {
+		return document.getElementById('importExportInput');
+	},
 
-function getSaveNameValue() {
-	return getSaveName().value;
-}
+	getSaveList: function() {
+		return document.getElementById('saveList');
+	},
 
-function getClipsTable() {
-	return document.getElementById('clipsTable')
-}
+	getSaveName: function() {
+		return document.getElementsByName('saveName')[0];
+	},
 
-function getClipsCount() {
-	return getClipsTable().childElementCount;
-}
+	getSaveNameValue: function() {
+		return this.getSaveName().value;
+	},
 
-function getSaveButton() {
-	return document.getElementById('save-button');
-}
+	getClipsTable: function() {
+		return document.getElementById('clipsTable');
+	},
+
+	getClipsCount: function() {
+		return this.getClipsTable().childElementCount;
+	},
+
+	getSortOptionValue: function() {
+		return document.getElementById('sortOption').value;
+	},
+	
+	getSelectionCheckbox: function(index) {
+		return document.getElementById(this.CLIP_SELECTED + index);
+	},
+	
+	getSelectionIndex: function(index) {
+		return document.getElementById(this.CLIP_INDEX + index);
+	}
+};
 
 
 //***********************//
@@ -212,7 +233,7 @@ function getSaveNames() {
 function loadSaveList() {
 	var saveNames = getSaveNames();
 	
-	var saveList = getSaveList();
+	var saveList = UI.getSaveList();
 	saveList.innerHTML = '';
 	
 	for(let name of saveNames) {
@@ -231,7 +252,7 @@ function getSavedClips(name) {
 }
 
 function loadSavedClips() {
-	clips = getSavedClips(getSaveNameValue());
+	clips = getSavedClips(UI.getSaveNameValue());
 	createClipsTable();
 }
 
@@ -239,15 +260,15 @@ function saveSelectedClips() {
 	clips = getSelectedClips();
 	createClipsTable();
 	
-	localStorage.setItem('save:' + getSaveNameValue(), JSON.stringify(clips));
+	localStorage.setItem('save:' + UI.getSaveNameValue(), JSON.stringify(clips));
 	loadSaveList();
 }
 
 function deleteSavedClips() {
 	clips = {data:[]};
 	createClipsTable();
-	localStorage.removeItem('save:' + getSaveNameValue());
-	getSaveName().value = '';
+	localStorage.removeItem('save:' + UI.getSaveNameValue());
+	UI.getSaveName().value = '';
 	loadSaveList();
 }
 
@@ -262,16 +283,16 @@ function goupilation() {
 //***********************//
 
 function showHideImportExport() {
-	if(isDisplayed(getClipsList())) {
-		hide(getClipsList());
-		hide(getClipsRibbon());
-		show(getImportExport());
-		show(getImportExportRibbon(), 'flex');
+	if(isDisplayed(UI.getClipsList())) {
+		hide(UI.getClipsList());
+		hide(UI.getClipsRibbon());
+		show(UI.getImportExport());
+		show(UI.getImportExportRibbon(), 'flex');
 	} else {
-		show(getClipsList());
-		show(getClipsRibbon(), 'flex');
-		hide(getImportExport());
-		hide(getImportExportRibbon());
+		show(UI.getClipsList());
+		show(UI.getClipsRibbon(), 'flex');
+		hide(UI.getImportExport());
+		hide(UI.getImportExportRibbon());
 	}
 }
 
@@ -285,11 +306,11 @@ function exportAllSaves() {
 	}
 	allSaves = JSON.stringify(allSaves);
 
-	getImportExportInput().value = allSaves;
+	UI.getImportExportInput().value = allSaves;
 }
 
 function importAllSaves(allSaves) {
-	var json = getImportExportInput().value;
+	var json = UI.getImportExportInput().value;
 	allSaves = JSON.parse(json);
 	for(let key in allSaves) {
 		localStorage.setItem('save:' + key, JSON.stringify(allSaves[key]));
@@ -310,9 +331,9 @@ function getSelectedClips() {
 	}
 	
 	// store selected clips with valid index
-	var clipsCount = getClipsCount();
+	var clipsCount = UI.getClipsCount();
 	for(let i=0; i<clipsCount; i++) {
-		let currentInput = document.getElementById(CLIP_INDEX + i);
+		let currentInput = UI.getSelectionIndex(i);
 		let currentValue = parseInt(currentInput.value);
 		if(!isNaN(currentValue) && currentValue <= selectCount) {
 			selectedClips.data[currentValue-1] = clips.data[i];
@@ -333,7 +354,7 @@ function filterSelectedClips() {
 }
 
 function addSelectedClips() {
-	clips.data = getSavedClips().data.concat(getSelectedClips().data);
+	clips.data = getSavedClips(UI.getSaveNameValue()).data.concat(getSelectedClips().data);
 	createClipsTable();
 }
 
@@ -347,10 +368,10 @@ function initClipsPage() {
 }
 
 function submitDates() {
-	var startDate = document.getElementById('start_date').value + 'T00:00:00Z';
-	var endDate = document.getElementById('end_date').value + 'T23:59:59Z';
+	var startDate = UI.getStartDate().value + 'T00:00:00Z';
+	var endDate = UI.getEndDate().value + 'T23:59:59Z';
 	
-	fetchClips(BROADCASTER_ID, startDate, endDate).then( function(json) {
+	fetchClips(BROADCASTER_ID, startDate, endDate).then(function(json) {
 		clips = json;
 		sortClipsByDate();
 		createClipsTable();
@@ -358,11 +379,11 @@ function submitDates() {
 }
 
 function setAllClipsSelectionState(check) {
-	var clipsCount = getClipsCount();
+	var clipsCount = UI.getClipsCount();
 	
 	for(let i=0; i<clipsCount; i++) {
-		let currentCheckBox = document.getElementById(CLIP_SELECTED + i);
-		let currentInput = document.getElementById(CLIP_INDEX + i);
+		let currentCheckBox = UI.getSelectionCheckbox(i);
+		let currentInput = UI.getSelectionIndex(i);
 		
 		if(check) {
 			// check if needed
@@ -404,10 +425,10 @@ function createClipsTable() {
 		
 		content = addContent(cell, 'input');
 		content.setAttribute('type', 'checkbox');
-		content.setAttribute('id', CLIP_SELECTED + i);
+		content.setAttribute('id', UI.CLIP_SELECTED + i);
 		content.setAttribute('checked', true);
 		content.onclick = function() {
-			clipSelectionHandler(CLIP_SELECTED + i, CLIP_INDEX + i);
+			clipSelectionHandler(i);
 		}
 		
 		// order
@@ -416,7 +437,7 @@ function createClipsTable() {
 		
 		content = addContent(cell, 'input');
 		content.setAttribute('type', 'text');
-		content.setAttribute('id', CLIP_INDEX + i);
+		content.setAttribute('id', UI.CLIP_INDEX + i);
 		content.setAttribute('value', selectCount);
 		content.style.width = '20px';
 		
@@ -447,7 +468,7 @@ function createClipsTable() {
 	}
 		
 	// delete current table
-	var clipsList = document.getElementById('clipsList');
+	var clipsList = UI.getClipsList();
 	clipsList.innerHTML = "";
 	
 	// create new table
@@ -463,9 +484,9 @@ function createClipsTable() {
 	clipsList.appendChild(table);
 }
 
-function clipSelectionHandler(checkboxId, inputId) {
-	let selectedCheckBox = document.getElementById(checkboxId);
-	let selectedInput = document.getElementById(inputId);
+function clipSelectionHandler(index) {
+	let selectedCheckBox = UI.getSelectionCheckbox(index);
+	let selectedInput = UI.getSelectionIndex(index);
 	
 	if(selectedCheckBox.checked) {
 		// show input
@@ -482,9 +503,9 @@ function clipSelectionHandler(checkboxId, inputId) {
 		selectedInput.value = '';
 		
 		// update subsequent values
-		let clipsCount = getClipsCount();
+		let clipsCount = UI.getClipsCount();
 		for(let i=0; i<clipsCount; i++) {
-			let currentInput = document.getElementById(CLIP_INDEX + i)
+			let currentInput = UI.getSelectionIndex(i);
 			let currentalue = parseInt(currentInput.value);
 			if(!isNaN(currentalue) && currentalue > selectedValue) {
 				currentInput.value = currentalue - 1;
@@ -531,9 +552,7 @@ function sortClipsByCreator() {
 }
 
 function sortClips() {
-	var opt = document.getElementById('sortOption').value;
-	
-	console.log(opt);
+	var opt = UI.getSortOptionValue();
 	
 	switch(opt) {
 		case 'date': sortClipsByDate(); break;
