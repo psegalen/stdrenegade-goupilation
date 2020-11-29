@@ -2,17 +2,21 @@
 // Video loop            //
 //***********************//
 
-import { clips, hide, setClips, show } from "./elements.js";
-import { getSavedClips } from "./persistence.js";
+import { hide, show } from "./elements.js";
+import { getSavedClips } from "./clips-persistence.js";
+
+let clips;
+let videoIndex;
 
 let videoPlayer1, videoPlayer2;
 let videoSource1, videoSource2;
 let videoOverlay;
 
-let videoIndex;
+const INTRO_OUTRO = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Fgenerique.mp4?alt=media&token=94374b9a-27fc-43a8-ac5f-6f3b252f0771";
+const TRANSITION = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.mp4?alt=media&token=cee192d9-0897-408a-b5ca-03d8e410f498";
 
 const initVideoPlayers = () => {
-  setClips(getSavedClips("goupilation"));
+  clips = (getSavedClips("video"));
 
   if (clips.data.length > 0) {
     // init members
@@ -22,14 +26,8 @@ const initVideoPlayers = () => {
     videoIndex = 0;
 
     // create video sources
-    videoSource1 = addVideoSource(
-      videoPlayer1,
-      "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Fgenerique.mp4?alt=media&token=94374b9a-27fc-43a8-ac5f-6f3b252f0771"
-    );
-    videoSource2 = addVideoSource(
-      videoPlayer2,
-      "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.mp4?alt=media&token=cee192d9-0897-408a-b5ca-03d8e410f498"
-    );
+    videoSource1 = addVideoSource(videoPlayer1, INTRO_OUTRO);
+    videoSource2 = addVideoSource(videoPlayer2, TRANSITION);
 
     // set event handlers
     videoPlayer1.addEventListener("ended", clipEndedHandler);

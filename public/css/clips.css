@@ -27,11 +27,11 @@ a {
   display: none;
 }
 
-#importExport {
+#import-export {
   display: none;
 }
 
-#importExportInput {
+#import-export-input {
   height: 600px;
   width: 1000px;
   margin: auto;
@@ -99,7 +99,7 @@ a {
   background-color: rgb(204, 0, 0, 0.3);
 }
 
-.goupilation-group {
+.video-group {
   border: 2px solid rgb(153, 0, 255);
   background-color: rgb(153, 0, 255, 0.3);
 }
@@ -140,7 +140,7 @@ a {
   background-color: rgb(204, 0, 0);
 }
 
-.goupilation-button {
+.video-button {
   background-color: rgb(153, 0, 255);
 }
 
