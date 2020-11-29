@@ -1,5 +1,5 @@
 body {
-  background: #750000;
+  background: rgb(117, 0, 0);
 }
 
 img {
@@ -15,7 +15,7 @@ input {
 }
 
 a {
-  color: #0099FF;
+  color: rgb(0, 153, 255);
 }
 
 
@@ -52,7 +52,7 @@ a {
   margin: auto;
   display: flex;
   justify-content: center;
-  border-bottom: 2px solid #550506;
+  border-bottom: 2px solid rgb(85, 5, 6);
 }
 
 .ribbon-group {
@@ -94,11 +94,6 @@ a {
   background-color: rgb(76, 175, 80, 0.3);
 }
 
-.sort-group {
-  border: 2px solid rgb(204, 0, 0);
-  background-color: rgb(204, 0, 0, 0.3);
-}
-
 .video-group {
   border: 2px solid rgb(153, 0, 255);
   background-color: rgb(153, 0, 255, 0.3);
@@ -136,10 +131,6 @@ a {
   background-color: rgb(76, 175, 80);
 }
 
-.sort-button {
-  background-color: rgb(204, 0, 0);
-}
-
 .video-button {
   background-color: rgb(153, 0, 255);
 }
@@ -154,11 +145,16 @@ a {
 /* Table            */
 /********************/
 
-.divTable{
+.divTable {
   display: table;
   margin-top: 4px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.divTableCaption {
+  display: table-caption;
+  background-color: rgb(200, 200, 200, 0.5);
 }
 
 .divTableRow {
@@ -166,13 +162,26 @@ a {
 }
 
 .divTableCell {
-  border: 1px solid #750000;
-  background-color: #550506;
+  border: 1px solid rgb(117, 0, 0);
+  background-color: rgb(85, 5, 6);
   display: table-cell;
   padding: 3px 10px;
   font-family: Arial;
   color: white;
   vertical-align:middle;
+}
+
+.headerButton {
+  height: 25px;
+  width: 25px;
+  background-color: rgb(255, 163, 26, 0.6);
+  color: black;
+  font-size: 14px;
+  text-align: center;
+  margin: 3px 3px;
+  padding: 0px;
+  border: 1px solid black;
+  cursor: pointer;
 }
 
 .annotation {

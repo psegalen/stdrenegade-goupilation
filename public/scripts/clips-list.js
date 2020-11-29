@@ -19,19 +19,6 @@ export const submitDates = () => {
   });
 };
 
-export const selectAllClips = () => {
-  clipsTable.selectAll(true);
-};
-
-export const unselectAllClips = () => {
-  clipsTable.selectAll(false);
-};
-
-export const filterSelectedClips = () => {
-  clipsTable.feed(clipsTable.getSelection());
-  renderClipsTable();
-};
-
 export const addSelectedClips = () => {
   const currentSavedClips = getSavedClips(getValueById("save-input"));
   const newClips = clipsTable.getSelection();
@@ -39,11 +26,6 @@ export const addSelectedClips = () => {
 
   clipsTable.feed(concatClips);
   renderClipsTable();
-};
-
-export const sortClips = () => {
-  const sortValue = getValueById("sort-options");
-  clipsTable.sort(sortValue, "desc");
 };
 
 export const createClipsTable = (id, json) => {

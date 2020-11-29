@@ -23,8 +23,25 @@ export const addCell = (row) => {
   return cell;
 };
 
-export const addContent = (container, type) => {
+export const addContent = (container, type, innerHTML, attributes, callbacks) => {
   const content = document.createElement(type);
+
+  if(innerHTML != undefined && innerHTML != null) {
+    content.innerHTML = innerHTML;
+  }
+
+  if(attributes != undefined && attributes != null) {
+    for(let attribute of attributes) {
+      content.setAttribute(attribute.key, attribute.value);
+    }
+  }
+
+  if(callbacks != undefined && callbacks != null) {
+    for(let callback of callbacks) {
+      content[callback.event] = callback.callback;
+    }
+  }
+
   container.appendChild(content);
 
   return content;
@@ -42,3 +59,19 @@ export const hide = (elt) => {
 export const isDisplayed = (elt) => {
   return elt.style.display != "none";
 };
+
+export const createCombo = (parent, id, options) => {
+  let combo = document.createElement("select");
+  combo.setAttribute("id", id);
+
+  for(let option of options) {
+    let entry = document.createElement("option");
+    entry.setAttribute("value", option.value);
+    entry.innerHTML = option.caption;
+    combo.appendChild(entry);
+  }
+
+  parent.appendChild(combo);
+
+  return combo;
+}
