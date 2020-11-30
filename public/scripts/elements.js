@@ -2,18 +2,12 @@
 // Everything DOM-related //
 //************************//
 
-const elements = {};
-
 export const getById = (id) => {
-  if (typeof elements[id] === "undefined") {
-    elements[id] = document.getElementById(id);
-  }
-  return elements[id];
+  return document.getElementById(id);
 };
 
 export const getValueById = (id) => {
-  const element = getById(id);
-  return element.value;
+  return getById(id).value;
 };
 
 export const addCell = (row) => {

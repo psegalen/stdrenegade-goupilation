@@ -1,17 +1,18 @@
-import {show, hide, addContent, addCell, createCombo} from "./elements.js";
+import {show, hide, getById, getValueById, addContent, addCell, createCombo} from "./elements.js";
 
 export class ClipsTable {
-    constructor(id) {
-        this.id = id;
+    constructor(id, parent) {
+		this.id = id;
+		this.parent = parent;
     }
 
     // set the clips for the table
-    feed(json) {
-		this.clips = json;
-		this.selection = new Array(json.data.length);
-		this.order = new Array(json.data.length);
+    feed(clips) {
+		this.clips = clips;
+		this.selection = new Array(clips.data.length);
+		this.order = new Array(clips.data.length);
 
-		for(let i=0; i<json.data.length; i++) {
+		for(let i=0; i<clips.data.length; i++) {
 			this.selection[i] = true;
 			this.order[i] = i+1;
 		}
@@ -46,11 +47,17 @@ export class ClipsTable {
 		return selectedClips;		
 	}
 
+	// render the table with the current selection or the provided clips
+	refresh(clips) {
+		this.feed(clips == undefined ? this.getSelection() : clips);
+		this.render();
+	}
+
     // select/unselect the clips and update the UI
 	selectAll(state) {
 		for(let i=0; i<this.clips.data.length; i++) {
-            let selectionCheckbox = document.getElementById(`${this.id}Selection${i}`);
-            let orderInput = document.getElementById(`${this.id}Order${i}`);
+            let selectionCheckbox = getById(`${this.id}Selection${i}`);
+            let orderInput = getById(`${this.id}Order${i}`);
 
             // selection
             this.selection[i] = state;
@@ -71,6 +78,7 @@ export class ClipsTable {
 
     // sort the clips and update the UI
 	sort(property, order) {
+		// sort clips
 		this.clips.data.sort((data1, data2) => {
 			let value1 = data1[property];
             let value2 = data2[property];
@@ -92,106 +100,35 @@ export class ClipsTable {
 				default:
 					return 0;
 			}
-        });
+		});
+		
+		// reset selection and order
+		for(let i=0; i<this.clips.data.length; i++) {
+			this.selection[i] = true;
+			this.order[i] = i+1;
+		}
 
-        this.render(document.getElementById(`${this.id}Table`).parentElement);
+        this.render();
 	}
 
     // display the table
-	render(parent) {
+	render() {
 		let clips = this.clips.data;
-
-		let row, cell;
 		let rows = [];
 
 		// caption row
 		if(clips.length > 0) {
-			row = document.createElement("div");
-			row.setAttribute("class", "divTableCaption");
-			
-			// select all
-			addContent(row, "button", "&#9745;",
-				[{key:"class", value:"headerButton"}],
-				[{event:"onclick", callback:function() {this.selectAll(true);}.bind(this)}]
-			);
-	
-			// unselect all
-			addContent(row, "button", "&#9744;",
-				[{key:"class", value:"headerButton"}],
-				[{event:"onclick", callback:function() {this.selectAll(false)}.bind(this)}]
-			);
-
-			// filter
-			addContent(row, "button", "&#10227;",
-				[{key:"class", value:"headerButton"}],
-				[{event:"onclick", callback:function() {this.feed(this.getSelection()); this.render(parent);}.bind(this)}]
-			);
-
-			// sort options
-			createCombo(row, `${this.id}SortOption`, [
-				{value:"created_at", caption:"Date created"},
-				{value:"view_count", caption:"View Count"},
-				{value:"title", caption:"Title"},
-				{value:"creator_name", caption:"Creator name"}
-			]).style.margin = "0px 3px 0px 20px";
-
-			// sort buttons
-			addContent(row, "button", "&#8593;",
-				[{key:"class", value:"headerButton"}],
-				[{event:"onclick", callback:function() {const sortValue = document.getElementById(`${this.id}SortOption`).value; this.sort(sortValue, "asc");}.bind(this)}]
-			);
-
-			addContent(row, "button", "&#8595;",
-				[{key:"class", value:"headerButton"}],
-				[{event:"onclick", callback:function() {const sortValue = document.getElementById(`${this.id}SortOption`).value; this.sort(sortValue, "desc");}.bind(this)}]
-			);
-	
-			rows.push(row);
+			rows.push(this.getCaptionRow());
 		}
 
-		for(let i=0; i<clips.length; i++) {			
-			let clip = clips[i];
-			
-			row = document.createElement("div");
-			row.setAttribute("class", "divTableRow");
-			rows.push(row);
-			
-			// checkbox
-			cell = addCell(row);
-			addContent(cell, "input", null,
-				[{key:"id", value:`${this.id}Selection${i}`}, {key:"type", value: "checkbox"}, {key:"checked", value:this.selection[i]}],
-				[{event:"onclick", callback:function() {this.selectionChangedHandler(this.id, i);}.bind(this)}]
-			);
-
-			// order
-			cell = addCell(row);
-			cell.style.width = "25px";		
-			addContent(cell, "input", null,
-				[{key:"id", value:`${this.id}Order${i}`}, {key:"type", value: "text"}, {key:"value", value:i+1}, {key:"style", value:"width: 20px"}],
-				[{event:"oninput", callback:function() {this.orderChangedHandler(this.id, i);}.bind(this)}]
-			);
-					
-			// thumbnail
-			cell = addCell(row);
-			addContent(cell, "img", null, [{key:"src", value:clip.thumbnail_url}]);
-			
-			// title
-			cell = addCell(row);		
-			addContent(cell, "a", clip.title, [{key:"href", value:clip.url}]);	
-			addContent(cell, "div", clip.view_count + " view(s)",[{key:"class", value:"annotation"}]);
-			
-			// creator
-			cell = addCell(row);
-			cell.innerHTML = clip.creator_name;
-			
-			// date
-			cell = addCell(row);		
-			cell.innerHTML = clip.created_at.replace("T", " &nbsp;&nbsp;").replace("Z", "");
+		// clip rows
+		for(let i=0; i<clips.length; i++) {
+			rows.push(this.getClipRow(i));
 		}
 		
 		// create new table
-		parent.innerHTML = "";
-		let table = addContent(parent, "div", null, [{key:"class", value:"divTable"}, {key:"id", value:`${this.id}Table`}])
+		this.parent.innerHTML = "";
+		let table = addContent(this.parent, "div", null, [{key:"class", value:"divTable"}, {key:"id", value:`${this.id}Table`}])
 
 		// add rows to table
 		for(let row of rows) {
@@ -199,10 +136,96 @@ export class ClipsTable {
 		}
 	}
 
+	getCaptionRow() {
+		let row = document.createElement("div");
+		row.setAttribute("class", "divTableCaption");
+		
+		// select all
+		addContent(row, "button", "&#9745;",
+			[{key:"class", value:"headerButton"}, {key:"title", value:"Select all"}],
+			[{event:"onclick", callback:function() {this.selectAll(true);}.bind(this)}]
+		);
+
+		// unselect all
+		addContent(row, "button", "&#9744;",
+			[{key:"class", value:"headerButton"}, {key:"title", value:"Unselect all"}],
+			[{event:"onclick", callback:function() {this.selectAll(false)}.bind(this)}]
+		);
+
+		// filter
+		addContent(row, "button", "&#10227;",
+			[{key:"class", value:"headerButton"}, {key:"title", value:"Show only selection"}],
+			[{event:"onclick", callback:function() {this.refresh();}.bind(this)}]
+		);
+
+		// sort options
+		createCombo(row, `${this.id}SortOption`, [
+			{value:"created_at", caption:"Date created"},
+			{value:"view_count", caption:"View Count"},
+			{value:"title", caption:"Title"},
+			{value:"creator_name", caption:"Creator name"}
+		]).style.margin = "0px 3px 0px 20px";
+
+		// sort buttons
+		addContent(row, "button", "&#8593;",
+			[{key:"class", value:"headerButton"}, {key:"title", value:"Sort ascending"}],
+			[{event:"onclick", callback:function() {const sortValue = getValueById(`${this.id}SortOption`); this.sort(sortValue, "asc");}.bind(this)}]
+		);
+
+		addContent(row, "button", "&#8595;",
+			[{key:"class", value:"headerButton"}, {key:"title", value:"Sort descending"}],
+			[{event:"onclick", callback:function() {const sortValue = getValueById(`${this.id}SortOption`); this.sort(sortValue, "desc");}.bind(this)}]
+		);
+
+		return row;
+	}
+
+	getClipRow(i) {
+		let row, cell;
+		let clip = this.clips.data[i];
+			
+		row = document.createElement("div");
+		row.setAttribute("class", "divTableRow");
+		
+		// checkbox
+		cell = addCell(row);
+		addContent(cell, "input", null,
+			[{key:"id", value:`${this.id}Selection${i}`}, {key:"type", value: "checkbox"}, {key:"checked", value:this.selection[i]}],
+			[{event:"onclick", callback:function() {this.selectionChangedHandler(this.id, i);}.bind(this)}]
+		);
+
+		// order
+		cell = addCell(row);
+		cell.style.width = "25px";		
+		addContent(cell, "input", null,
+			[{key:"id", value:`${this.id}Order${i}`}, {key:"type", value: "text"}, {key:"value", value:i+1}, {key:"style", value:"width: 20px"}],
+			[{event:"oninput", callback:function() {this.orderChangedHandler(this.id, i);}.bind(this)}]
+		);
+				
+		// thumbnail
+		cell = addCell(row);
+		addContent(cell, "img", null, [{key:"src", value:clip.thumbnail_url}]);
+		
+		// title
+		cell = addCell(row);		
+		addContent(cell, "a", clip.title, [{key:"href", value:clip.url}, {key:"target", value:"blank"}]);	
+		addContent(cell, "div", clip.view_count + " view(s)",[{key:"class", value:"annotation"}]);
+		
+		// creator
+		cell = addCell(row);
+		cell.innerHTML = clip.creator_name;
+		
+		// date
+		cell = addCell(row);		
+		cell.innerHTML = clip.created_at.replace("T", " &nbsp;&nbsp;").replace("Z", "");
+
+		return row;
+	}
+
     // handle checkbox click
 	selectionChangedHandler(id, index) {
-		let selectionCheckbox = document.getElementById(`${id}Selection${index}`);
-		let orderInput = document.getElementById(`${id}Order${index}`);
+		let selectionCheckbox = getById(`${id}Selection${index}`);
+		let orderInput = getById(`${id}Order${index}`);
 
 		this.selection[index] = selectionCheckbox.checked;
 
@@ -222,7 +245,7 @@ export class ClipsTable {
 			
 			// update subsequent values
 			for(let i=0; i<this.clips.data.length; i++) {
-				let currentOrderInput = document.getElementById(`${id}Order${i}`);
+				let currentOrderInput = getById(`${id}Order${i}`);
 				let currentOrderValue = parseInt(currentOrderInput.value);
 				if(!isNaN(currentOrderValue) && currentOrderValue > order) {
                     this.order[i]--;
@@ -234,7 +257,7 @@ export class ClipsTable {
 
     // handle order field value change
 	orderChangedHandler(id, index) {
-		let orderInput = document.getElementById(`${id}Order${index}`);
+		let orderInput = getById(`${id}Order${index}`);
         this.order[index] = orderInput.value;
 	}
 }

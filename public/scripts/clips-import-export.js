@@ -3,14 +3,15 @@
 //***********************//
 
 import { getById, hide, show, isDisplayed } from "./elements.js";
-import { getSavedClips, getSaveNames, loadSaveList } from "./clips-persistence.js";
+import { loadSaveList } from './clips-list.js';
+import { loadClips, getSaveNames } from "./clips-persistence.js";
 
 export const exportAllSaves = () => {
   const saveNames = getSaveNames();
 
   const allSaves = {};
   for (let name of saveNames) {
-    allSaves[name] = getSavedClips(name);
+    allSaves[name] = loadClips(name);
   }
 
   getById("import-export-input").value = JSON.stringify(allSaves);

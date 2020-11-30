@@ -3,7 +3,7 @@
 //***********************//
 
 import { hide, show } from "./elements.js";
-import { getSavedClips } from "./clips-persistence.js";
+import { loadClips } from "./clips-persistence.js";
 
 let clips;
 let videoIndex;
@@ -16,7 +16,7 @@ const INTRO_OUTRO = "https://firebasestorage.googleapis.com/v0/b/goupilation.app
 const TRANSITION = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.mp4?alt=media&token=cee192d9-0897-408a-b5ca-03d8e410f498";
 
 const initVideoPlayers = () => {
-  clips = (getSavedClips("video"));
+  clips = (loadClips("video"));
 
   if (clips.data.length > 0) {
     // init members

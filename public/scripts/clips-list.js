@@ -2,10 +2,10 @@
 // Clips list            //
 //***********************//
 
-import { getById, getValueById } from "./elements.js";
+import { getById, getValueById, addContent } from "./elements.js";
 import { fetchClips } from "./twitch.js";
+import { loadClips, saveClips, deleteClips, getSaveNames } from "./clips-persistence.js";
 import { ClipsTable } from "./clips-table.js";
-import { getSavedClips } from "./clips-persistence.js";
 
 let clipsTable;
 
@@ -13,34 +13,58 @@ export const submitDates = () => {
   const startDate = getById("start_date").value + "T00:00:00Z";
   const endDate = getById("end_date").value + "T23:59:59Z";
 
-  fetchClips(startDate, endDate).then((json) => {
-    createClipsTable("clipsTable", json);
-    renderClipsTable();
+  fetchClips(startDate, endDate).then((clips) => {
+    createClipsTable(clips);
+    clipsTable.render();
   });
 };
 
 export const addSelectedClips = () => {
-  const currentSavedClips = getSavedClips(getValueById("save-input"));
+  const currentSavedClips = loadClips(getValueById("save-input"));
   const newClips = clipsTable.getSelection();
   const concatClips = {data: currentSavedClips.data.concat(newClips.data)};
 
-  clipsTable.feed(concatClips);
-  renderClipsTable();
+  clipsTable.refresh(concatClips);
 };
 
-export const createClipsTable = (id, json) => {
-  clipsTable = new ClipsTable(id);
+export const saveSelectedClips = () => {
+  clipsTable.refresh();
+  saveClips(getValueById("save-input"), clipsTable.clips);
+  loadSaveList();
+};
+
+export const saveClipsForVideo = () => {
+  clipsTable.refresh();
+  saveClips("video", clipsTable.clips);
+  loadSaveList();
+};
+
+export const loadSavedClips = () => {
+  const clips = loadClips(getValueById("save-input"));
+  createClipsTable(clips);
+  clipsTable.render();
+};
+
+export const deleteSavedClips = () => {
+  const saveInput = getById("save-input");
+  deleteClips(saveInput.value);
+  loadSaveList();
+  saveInput.value = "";
+};
+
+export const loadSaveList = () => {
+  const saveNames = getSaveNames();
+
+  const saveList = document.getElementById("save-list");
+  saveList.innerHTML = "";
+
+  for (let name of saveNames) {
+    let opt = addContent(saveList, "option");
+    opt.setAttribute("value", name);
+  }
+};
+
+const createClipsTable = (json) => {
+  clipsTable = new ClipsTable("clips-list", document.getElementById("clips-list"));
   clipsTable.feed(json);
-};
-
-export const feedClipsTable = (json) => {
-  clipsTable.feed(json);
-};
-
-export const renderClipsTable = () => {
-  clipsTable.render(getById("clips-list"));
-};
-
-export const getSelectedClips = () => {
-  return clipsTable.getSelection();
 };
