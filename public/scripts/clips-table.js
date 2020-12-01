@@ -181,44 +181,32 @@ export class ClipsTable {
 	}
 
 	getClipRow(i) {
-		let row, cell;
+		let row;
 		let clip = this.clips.data[i];
+		const template = 
+			`<div class="divTableCell">
+				<input id="${this.id}Selection${i}" type="checkbox" checked="${this.selection[i]}" />
+			</div>
+			<div class="divTableCell" style="width: 25px;">
+				<input id="${this.id}Order${i}" type="text" value="${i + 1}" style="width: 20px" />
+			</div>
+			<div class="divTableCell">
+				<img src="${clip.thumbnail_url}" />
+			</div>
+			<div class="divTableCell">
+				<a href="${clip.url}" target="blank">${clip.title}</a>
+				<div class="annotation">${clip.view_count} view(s)</div>
+			</div>
+			<div class="divTableCell">${clip.creator_name}</div>
+			<div class="divTableCell">${clip.created_at.replace("T", " &nbsp;&nbsp;").replace("Z", "")}</div>`;
 			
 		row = document.createElement("div");
 		row.setAttribute("class", "divTableRow");
-		
-		// checkbox
-		cell = addCell(row);
-		addContent(cell, "input", null,
-			[{key:"id", value:`${this.id}Selection${i}`}, {key:"type", value: "checkbox"}, {key:"checked", value:this.selection[i]}],
-			[{event:"onclick", callback:function() {this.selectionChangedHandler(this.id, i);}.bind(this)}]
-		);
+		row.innerHTML = template;
 
-		// order
-		cell = addCell(row);
-		cell.style.width = "25px";		
-		addContent(cell, "input", null,
-			[{key:"id", value:`${this.id}Order${i}`}, {key:"type", value: "text"}, {key:"value", value:i+1}, {key:"style", value:"width: 20px"}],
-			[{event:"oninput", callback:function() {this.orderChangedHandler(this.id, i);}.bind(this)}]
-		);
-				
-		// thumbnail
-		cell = addCell(row);
-		addContent(cell, "img", null, [{key:"src", value:clip.thumbnail_url}]);
+		row.querySelector(`#${this.id}Selection${i}`).addEventListener("click", () => this.selectionChangedHandler(this.id, i))
+		row.querySelector(`#${this.id}Order${i}`).addEventListener("input", () => this.orderChangedHandler(this.id, i))
 		
-		// title
-		cell = addCell(row);		
-		addContent(cell, "a", clip.title, [{key:"href", value:clip.url}, {key:"target", value:"blank"}]);	
-		addContent(cell, "div", clip.view_count + " view(s)",[{key:"class", value:"annotation"}]);
-		
-		// creator
-		cell = addCell(row);
-		cell.innerHTML = clip.creator_name;
-		
-		// date
-		cell = addCell(row);		
-		cell.innerHTML = clip.created_at.replace("T", " &nbsp;&nbsp;").replace("Z", "");
-
 		return row;
 	}
 
