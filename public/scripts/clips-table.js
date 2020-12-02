@@ -4,6 +4,9 @@ export class ClipsTable {
     constructor(id, parent) {
 		this.id = id;
 		this.parent = parent;
+		this.clips = {data:[]};
+		this.selection = [];
+		this.order = [];
     }
 
     // set the clips for the table

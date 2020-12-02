@@ -7,15 +7,12 @@ import { fetchClips } from "./twitch.js";
 import { loadClips, saveClips, deleteClips, getSaveNames } from "./clips-persistence.js";
 import { ClipsTable } from "./clips-table.js";
 
-let remoteClipsTable, localClipsTable;
-
 export const submitDates = () => {
   const startDate = getById("start_date").value + "T00:00:00Z";
   const endDate = getById("end_date").value + "T23:59:59Z";
 
   fetchClips(startDate, endDate).then((clips) => {
-    remoteClipsTable = createClipsTable("remote-clips-table", clips);
-    remoteClipsTable.render();
+    remoteClipsTable.refresh(clips);
   });
 };
 
@@ -41,8 +38,7 @@ export const saveClipsForVideo = () => {
 
 export const loadSavedClips = () => {
   const clips = loadClips(getValueById("save-input"));
-  localClipsTable = createClipsTable("local-clips-table", clips);
-  localClipsTable.render();
+  localClipsTable.refresh(clips);
 };
 
 export const deleteSavedClips = () => {
@@ -66,6 +62,9 @@ export const loadSaveList = () => {
 
 const createClipsTable = (parentId, json) => {
   let clipsTable = new ClipsTable(parentId, document.getElementById(parentId));
-  clipsTable.feed(json);
+  if(json != undefined) clipsTable.feed(json);
   return clipsTable;
 };
+
+let remoteClipsTable = createClipsTable("remote-clips-table");
+let localClipsTable = createClipsTable("local-clips-table");
