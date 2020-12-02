@@ -7,42 +7,42 @@ import { fetchClips } from "./twitch.js";
 import { loadClips, saveClips, deleteClips, getSaveNames } from "./clips-persistence.js";
 import { ClipsTable } from "./clips-table.js";
 
-let clipsTable;
+let remoteClipsTable, localClipsTable;
 
 export const submitDates = () => {
   const startDate = getById("start_date").value + "T00:00:00Z";
   const endDate = getById("end_date").value + "T23:59:59Z";
 
   fetchClips(startDate, endDate).then((clips) => {
-    createClipsTable(clips);
-    clipsTable.render();
+    remoteClipsTable = createClipsTable("remote-clips-table", clips);
+    remoteClipsTable.render();
   });
 };
 
 export const addSelectedClips = () => {
-  const currentSavedClips = loadClips(getValueById("save-input"));
-  const newClips = clipsTable.getSelection();
-  const concatClips = {data: currentSavedClips.data.concat(newClips.data)};
+  const localClips = localClipsTable.clips;
+  const remoteClips = remoteClipsTable.getSelection();
+  const concatClips = {data: localClips.data.concat(remoteClips.data)};
 
-  clipsTable.refresh(concatClips);
+  localClipsTable.refresh(concatClips);
 };
 
 export const saveSelectedClips = () => {
-  clipsTable.refresh();
-  saveClips(getValueById("save-input"), clipsTable.clips);
+  localClipsTable.refresh();
+  saveClips(getValueById("save-input"), localClipsTable.clips);
   loadSaveList();
 };
 
 export const saveClipsForVideo = () => {
-  clipsTable.refresh();
-  saveClips("video", clipsTable.clips);
+  localClipsTable.refresh();
+  saveClips("video", localClipsTable.clips);
   loadSaveList();
 };
 
 export const loadSavedClips = () => {
   const clips = loadClips(getValueById("save-input"));
-  createClipsTable(clips);
-  clipsTable.render();
+  localClipsTable = createClipsTable("local-clips-table", clips);
+  localClipsTable.render();
 };
 
 export const deleteSavedClips = () => {
@@ -64,7 +64,8 @@ export const loadSaveList = () => {
   }
 };
 
-const createClipsTable = (json) => {
-  clipsTable = new ClipsTable("clips-list", document.getElementById("clips-list"));
+const createClipsTable = (parentId, json) => {
+  let clipsTable = new ClipsTable(parentId, document.getElementById(parentId));
   clipsTable.feed(json);
+  return clipsTable;
 };

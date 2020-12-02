@@ -4,7 +4,7 @@
 
 import { getById } from "./elements.js";
 import { submitDates, addSelectedClips, saveSelectedClips, loadSavedClips, deleteSavedClips, saveClipsForVideo, loadSaveList } from "./clips-list.js";
-import { exportAllSaves, importAllSaves, toggleViews } from "./clips-import-export.js";
+import { showExport, showImport, hideImportExport } from "./clips-import-export.js";
 
 // Create buttons event handlers when page is loaded
 window.addEventListener("load", () => {
@@ -18,10 +18,8 @@ window.addEventListener("load", () => {
 
   getById("video-button").addEventListener("click", saveClipsForVideo);
 
-  getById("export-button").addEventListener("click", exportAllSaves);
-  getById("import-button").addEventListener("click", importAllSaves);
-  
-  getById("toggle-views").addEventListener("click", toggleViews);
-
+  getById("export-button").addEventListener("click", showExport);
+  getById("import-button").addEventListener("click", showImport);
+  getById("import-export-cancel").addEventListener("click", hideImportExport);
   loadSaveList();
 });

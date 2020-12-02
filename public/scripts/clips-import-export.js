@@ -6,6 +6,37 @@ import { getById, hide, show, isDisplayed } from "./elements.js";
 import { loadSaveList } from './clips-list.js';
 import { loadClips, getSaveNames } from "./clips-persistence.js";
 
+export const showImport = () => {
+  let confirmButton = getById("import-export-confirm");
+  confirmButton.innerText = "Import";
+  confirmButton.addEventListener("click", importAllSaves);
+
+  let textInput = getById("import-export-input");
+  textInput.value = "";
+
+  let cancelButton = getById("import-export-cancel");
+  show(cancelButton);
+
+  show(getById("import-export"), "flex");
+}
+
+export const showExport = () => {
+  let confirmButton = getById("import-export-confirm");
+  confirmButton.innerText = "Done";
+  confirmButton.addEventListener("click", hideImportExport);
+
+  let cancelButton = getById("import-export-cancel");
+  hide(cancelButton);
+
+  exportAllSaves();
+
+  show(getById("import-export"), "flex");
+}
+
+export const hideImportExport = () => {
+  hide(getById("import-export"));
+}
+
 export const exportAllSaves = () => {
   const saveNames = getSaveNames();
 
@@ -31,19 +62,4 @@ export const importAllSaves = (allSaves) => {
   loadSaveList();
 
   input.value = "";
-};
-
-export const toggleViews = () => {
-  if (isDisplayed(getById("clips-list"))) {
-    hide(getById("clips-list"));
-    hide(getById("clips-ribbon"));
-    show(getById("import-export"));
-    show(getById("import-export-ribbon"), "flex");
-    getById("import-export-input").value = "";
-  } else {
-    show(getById("clips-list"));
-    show(getById("clips-ribbon"), "flex");
-    hide(getById("import-export"));
-    hide(getById("import-export-ribbon"));
-  }
 };
