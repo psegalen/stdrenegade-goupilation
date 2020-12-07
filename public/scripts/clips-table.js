@@ -1,10 +1,10 @@
-import {show, hide, getById, getValueById, addContent, addCell, createCombo} from "./elements.js";
+import {show, hide, getById, getValueById, addContent} from "./elements.js";
 
 export class ClipsTable {
     constructor(id, parent) {
 		this.id = id;
 		this.parent = parent;
-		this.clips = {data:[]};
+		this.clips = [];
 		this.selection = [];
 		this.order = [];
     }
@@ -12,10 +12,10 @@ export class ClipsTable {
     // set the clips for the table
     feed(clips) {
 		this.clips = clips;
-		this.selection = new Array(clips.data.length);
-		this.order = new Array(clips.data.length);
+		this.selection = new Array(clips.length);
+		this.order = new Array(clips.length);
 
-		for(let i=0; i<clips.data.length; i++) {
+		for(let i=0; i<clips.length; i++) {
 			this.selection[i] = true;
 			this.order[i] = i+1;
 		}
@@ -23,12 +23,12 @@ export class ClipsTable {
 
     // get the selected elements in the indicated order
 	getSelection() {
-		let dataCount = this.clips.data.length;
+		let dataCount = this.clips.length;
 
 		// initialize object
-		let selectedClips = {data:[]};
+		let selectedClips = [];
 		for(let i=0; i<dataCount; i++) {
-			selectedClips.data.push(null);
+			selectedClips.push(null);
 		}
 		
 		// store selected elements with valid index
@@ -38,12 +38,12 @@ export class ClipsTable {
 			let isSelected = currentSelection == true;
 			let isIndexValid =  !isNaN(currentOrder) && currentOrder <= dataCount;
 			if(isSelected && isIndexValid) {
-				selectedClips.data[currentOrder] = this.clips.data[i];
+				selectedClips[currentOrder] = this.clips[i];
 			}
 		}
 		
 		// remove null objects
-		selectedClips.data = selectedClips.data.filter((clip) => {
+		selectedClips = selectedClips.filter((clip) => {
 			return clip != null;
 		});
 		
@@ -58,7 +58,7 @@ export class ClipsTable {
 
     // select/unselect the clips and update the UI
 	selectAll(state) {
-		for(let i=0; i<this.clips.data.length; i++) {
+		for(let i=0; i<this.clips.length; i++) {
             let selectionCheckbox = getById(`${this.id}Selection${i}`);
             let orderInput = getById(`${this.id}Order${i}`);
 
@@ -82,7 +82,7 @@ export class ClipsTable {
     // sort the clips and update the UI
 	sort(property, order) {
 		// sort clips
-		this.clips.data.sort((data1, data2) => {
+		this.clips.sort((data1, data2) => {
 			let value1 = data1[property];
             let value2 = data2[property];
 			switch(order) {
@@ -106,7 +106,7 @@ export class ClipsTable {
 		});
 		
 		// reset selection and order
-		for(let i=0; i<this.clips.data.length; i++) {
+		for(let i=0; i<this.clips.length; i++) {
 			this.selection[i] = true;
 			this.order[i] = i+1;
 		}
@@ -116,7 +116,7 @@ export class ClipsTable {
 
     // display the table
 	render() {
-		let clips = this.clips.data;
+		let clips = this.clips;
 		let rows = [];
 
 		// caption row
@@ -140,52 +140,49 @@ export class ClipsTable {
 	}
 
 	getCaptionRow() {
+		// row html
+		const template =
+			`<div class="divTableCaption">
+				<div class="horizontal">
+					<button id="${this.id}SelectAll" class="headerButton" title="Select all">&#9745;</button>
+					<button id="${this.id}UnselectAll" class="headerButton" title="Unselect all">&#9744;</button>
+					<button id="${this.id}ShowOnlySelection" class="headerButton" title="Show only selection">&#10227;</button>
+					<select id="${this.id}SortOption" style="margin:0px 3px 0px 20px">
+						<option value="created_at">Date created</option>
+						<option value="view_count">View Count</option>
+						<option value="title">Title</option>
+						<option value="creator_name">Creator name</option>
+					</select>
+					<button id="${this.id}SortAscending" class="headerButton" title="Sort ascending">&#8593;</button>
+					<button id="${this.id}SortDescending" class="headerButton" title="Sort descending">&#8595;</button>
+				</div>
+			</div>`
+
 		let row = document.createElement("div");
 		row.setAttribute("class", "divTableCaption");
-		
-		// select all
-		addContent(row, "button", "&#9745;",
-			[{key:"class", value:"headerButton"}, {key:"title", value:"Select all"}],
-			[{event:"onclick", callback:function() {this.selectAll(true);}.bind(this)}]
-		);
+		row.innerHTML = template;
 
-		// unselect all
-		addContent(row, "button", "&#9744;",
-			[{key:"class", value:"headerButton"}, {key:"title", value:"Unselect all"}],
-			[{event:"onclick", callback:function() {this.selectAll(false)}.bind(this)}]
-		);
+		// row events
+		const selectAllHandler = () => this.selectAll(true);
+		const unselectAllHadler = () => this.selectAll(false);
+		const showOnlySelectionHandler = () => this.refresh();
+		const sortAscendingHadler = () => {const sortValue = getValueById(`${this.id}SortOption`); this.sort(sortValue, "asc")};
+		const sortDescendingHadler = () => {const sortValue = getValueById(`${this.id}SortOption`); this.sort(sortValue, "desc")};
 
-		// filter
-		addContent(row, "button", "&#10227;",
-			[{key:"class", value:"headerButton"}, {key:"title", value:"Show only selection"}],
-			[{event:"onclick", callback:function() {this.refresh();}.bind(this)}]
-		);
-
-		// sort options
-		createCombo(row, `${this.id}SortOption`, [
-			{value:"created_at", caption:"Date created"},
-			{value:"view_count", caption:"View Count"},
-			{value:"title", caption:"Title"},
-			{value:"creator_name", caption:"Creator name"}
-		]).style.margin = "0px 3px 0px 20px";
-
-		// sort buttons
-		addContent(row, "button", "&#8593;",
-			[{key:"class", value:"headerButton"}, {key:"title", value:"Sort ascending"}],
-			[{event:"onclick", callback:function() {const sortValue = getValueById(`${this.id}SortOption`); this.sort(sortValue, "asc");}.bind(this)}]
-		);
-
-		addContent(row, "button", "&#8595;",
-			[{key:"class", value:"headerButton"}, {key:"title", value:"Sort descending"}],
-			[{event:"onclick", callback:function() {const sortValue = getValueById(`${this.id}SortOption`); this.sort(sortValue, "desc");}.bind(this)}]
-		);
+		row.querySelector(`#${this.id}SelectAll`).addEventListener("click", selectAllHandler);
+		row.querySelector(`#${this.id}UnselectAll`).addEventListener("click", unselectAllHadler);
+		row.querySelector(`#${this.id}ShowOnlySelection`).addEventListener("click", showOnlySelectionHandler);
+		row.querySelector(`#${this.id}SortAscending`).addEventListener("click", sortAscendingHadler);
+		row.querySelector(`#${this.id}SortDescending`).addEventListener("click", sortDescendingHadler);
 
 		return row;
 	}
 
 	getClipRow(i) {
 		let row;
-		let clip = this.clips.data[i];
+		let clip = this.clips[i];
+
+		// row html
 		const template = 
 			`<div class="divTableCell">
 				<input id="${this.id}Selection${i}" type="checkbox" checked="${this.selection[i]}" />
@@ -207,6 +204,7 @@ export class ClipsTable {
 		row.setAttribute("class", "divTableRow");
 		row.innerHTML = template;
 
+		// row events
 		row.querySelector(`#${this.id}Selection${i}`).addEventListener("click", () => this.selectionChangedHandler(this.id, i))
 		row.querySelector(`#${this.id}Order${i}`).addEventListener("input", () => this.orderChangedHandler(this.id, i))
 		
@@ -235,7 +233,7 @@ export class ClipsTable {
 			hide(orderInput);
 			
 			// update subsequent values
-			for(let i=0; i<this.clips.data.length; i++) {
+			for(let i=0; i<this.clips.length; i++) {
 				let currentOrderInput = getById(`${id}Order${i}`);
 				let currentOrderValue = parseInt(currentOrderInput.value);
 				if(!isNaN(currentOrderValue) && currentOrderValue > order) {

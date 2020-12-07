@@ -1,5 +1,8 @@
 body {
   background: rgb(117, 0, 0);
+  font-family: Arial;
+  font-size: 14px;
+  color: white;
 }
 
 img {
@@ -11,7 +14,6 @@ input {
   margin-right: 3px;
   border: 2px solid back;
   border-radius: 4px;
-  text-align: center;
   font-size: 12px;
   height: 20px;
 }
@@ -20,9 +22,9 @@ a {
   color: rgb(0, 153, 255);
 }
 
-/********************/
-/* Clips            */
-/********************/
+/*********************/
+/* Clips             */
+/*********************/
 
 #remote-clips {
   position: relative;
@@ -43,13 +45,12 @@ a {
   color: white;
   text-align: center;
   text-decoration: underline;
-  font-family: Arial;
   font-size: 18px;
 }
 
-/********************/
-/* Ribbon           */
-/********************/
+/*********************/
+/* Ribbon            */
+/*********************/
 
 .ribbon {
   display: flex;
@@ -59,9 +60,9 @@ a {
   border-bottom: 2px solid rgb(85, 5, 6);
 }
 
-/********************/
-/* Buttons          */
-/********************/
+/*********************/
+/* Buttons           */
+/*********************/
 
 .button {
   display: inline-block;
@@ -72,8 +73,6 @@ a {
   color: white;
   text-align: center;
   text-decoration: none;
-  font-family: Arial;
-  font-size: 14px;
   cursor: pointer;
 }
 
@@ -103,9 +102,9 @@ a {
   background-color: rgb(153, 0, 255, 0.7);
 }
 
-/********************/
-/* Table            */
-/********************/
+/*********************/
+/* Table             */
+/*********************/
 
 .divTable {
   display: table;
@@ -115,6 +114,7 @@ a {
 
 .divTableCaption {
   display: table-caption;
+  justify-content: left;
   background-color: rgb(200, 200, 200, 0.5);
 }
 
@@ -131,7 +131,6 @@ a {
   background-color: rgb(85, 5, 6);
   color: white;
   font-size: 12px;
-  font-family: Arial;
 }
 
 .headerButton {
@@ -149,14 +148,35 @@ a {
 
 .annotation {
   color: #999999;
-  font-family: Arial;
 }
 
-/********************/
-/* Import / Export  */
-/********************/
+/*********************/
+/* Import / Export   */
+/*********************/
 
-#import-export {
+#import-export-input {
+  display: flex;
+  margin: auto;
+  height: 600px;
+  width: 1000px;
+  justify-content: center;
+}
+
+/*********************/
+/* Modal dialog      */
+/*********************/
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.horizontal {
+  display: flex;
+  flex-direction: row;
+}
+
+.modal-dialog {
   display: none;
   justify-content: center;
   align-items: center;
@@ -167,10 +187,15 @@ a {
   z-index: 2;
 }
 
-#import-export-input {
+.modal-dialog input {
+  width: 800px;
+  margin: 10px;
+}
+
+.modal-dialog-buttons {
   display: flex;
-  margin: auto;
-  height: 600px;
-  width: 1000px;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-end;
+  border-top:  2px solid rgb(85, 5, 6);
+  margin-top: 15px;
 }

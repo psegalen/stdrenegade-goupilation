@@ -53,19 +53,3 @@ export const hide = (elt) => {
 export const isDisplayed = (elt) => {
   return elt.style.display != "none";
 };
-
-export const createCombo = (parent, id, options) => {
-  let combo = document.createElement("select");
-  combo.setAttribute("id", id);
-
-  for(let option of options) {
-    let entry = document.createElement("option");
-    entry.setAttribute("value", option.value);
-    entry.innerHTML = option.caption;
-    combo.appendChild(entry);
-  }
-
-  parent.appendChild(combo);
-
-  return combo;
-}

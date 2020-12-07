@@ -7,6 +7,7 @@
 
   <body>
 
+    <!-- Remote clips -->
     <div id="remote-clips">
       <div class="info">
         Fetch clips from Twitch
@@ -17,47 +18,109 @@
         <button id="submit-dates-button" class="button submit-button">
           Submit
         </button>
-        <button class="button select-button" id="add-selected-button" title="Add clips to current selection">
+        <button id="add-selected-button" class="button select-button" title="Add clips to current selection">
           &gt;
         </button>
       </div>
       <div id="remote-clips-table"></div>
     </div>
 
+    <!-- Local clips -->
     <div id="local-clips">
       <div class="info">
         Manage clips for the video
       </div>
       <div class="ribbon">
-        <input id="save-input" type="text" list="save-list" placeholder="Select/Enter save name"/>
-        <datalist id="save-list"></datalist>
-        <button id="save-button" class="button save-button" title="Save selected clips">
+        <button id="save-button" class="button save-button" title="Save a video">
           Save
         </button>
-        <button id="load-button" class="button save-button" title="Load saved clips">
+        <button id="load-button" class="button save-button" title="Load a video">
           Load
         </button>
-        <button id="delete-button" class="button save-button" title="Delete saved clips">
+        <button id="delete-button" class="button save-button" title="Delete a video">
           Delete
         </button>
-        <button id="import-button" class="button share-button" title="Import saved clips">
+        <button id="import-button" class="button share-button" title="Import saved videos">
           Import
         </button>
-        <button id="export-button" class="button share-button" title="Export saved clips">
+        <button id="export-button" class="button share-button" title="Export all saved videos">
           Export
-        </button>
-        <button id="video-button" class="button video-button" title="Choose current selection for the video">
-          Select
         </button>
       </div>
       <div id="local-clips-table"></div>
     </div>
 
-    <div id="import-export">
-      <div>
+    <!-- Load dialog -->
+    <div id="load-dialog" class="modal-dialog">
+      <div class="vertical">
+        <div style="display: table">
+          <div style="display: table-row">
+            <div style="display: table-cell">Select save to load:&nbsp;</div>
+            <div style="display: table-cell"><select id="load-name"></select></div>
+          </div>
+        </div>
+        <div class="modal-dialog-buttons">
+          <button id="load-confirm" class="button save-button" title = "Load clips from browser storage">Load</button>
+          <button id="load-cancel" class="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save dialog -->
+    <div id="save-dialog" class="modal-dialog">
+      <div class="vertical">
+        <div style="display: table">
+          <div style="display: table-row">
+            <div style="display:table-cell">Save name:</div>
+            <div style="display:table-cell"><input id="save-name" type="text"></input></div>
+          </div>
+          <div style="display: table-row">
+            <div style="display: table-cell">Overlay URL:</div>
+            <div style="display: table-cell"><input id="save-overlay" type="text" placeholder="(leave empty for default value)"></input></div>
+          </div>
+          <div style="display: table-row">
+            <div style="display:table-cell">Intro video URL:</div>
+            <div style="display:table-cell"><input id="save-intro" type="text" placeholder="(leave empty for default value)"></input></div>
+          </div>
+          <div style="display: table-row">
+            <div style="display:table-cell">Outro video URL:</div>
+            <div style="display:table-cell"><input id="save-outro" type="text" placeholder="(leave empty for default value)"></input></div>
+          </div>
+          <div style="display: table-row">
+            <div style="display:table-cell">Transition video URL:</div>
+            <div style="display:table-cell"><input id="save-transition" type="text" placeholder="(leave empty for default value)"></input></div>
+          </div>
+        </div>
+        <div class="modal-dialog-buttons">
+          <button id="save-confirm" class="button save-button" title="Save clips in browser storage">Save</button>
+          <button id="save-select" class="button video-button" title="Select clips for video">Select</button>
+          <button id="save-cancel" class="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete dialog -->
+    <div id="delete-dialog" class="modal-dialog">
+      <div class="vertical">
+        <div style="display: table">
+          <div style="display: table-row">
+            <div style="display: table-cell">Select save to delete:&nbsp;</div>
+            <div style="display: table-cell"><select id="delete-name"></select></div>
+          </div>
+        </div>
+        <div class="modal-dialog-buttons">
+          <button id="delete-confirm" class="button save-button" title = "Delete clips from browser storage">Delete</button>
+          <button id="delete-close" class="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import/Export dialog -->
+    <div id="import-export-dialog" class="modal-dialog">
+      <div class="vertical">
         <textarea id="import-export-input"></textarea>
-        <div class="ribbon">
-          <button id="import-export-confirm" class="button share-button"></button>
+        <div class="modal-dialog-buttons">
+          <button id="import-export-confirm" class="button share-button">OK</button>
           <button id="import-export-cancel" class="button">Cancel</button>
         </div>
       </div>

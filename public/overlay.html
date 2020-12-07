@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="css/overlay.css" />
+  </head>
+  <body>
+    <div>
+      <div id="overlay"></div>
+    </div>
+    <script>
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const display = `${urlParams.get('title')} - Clipped by ${urlParams.get('creator')}`;
+
+        document.getElementById("overlay").innerHTML = display;
+    </script>
+  </body>
+</html>

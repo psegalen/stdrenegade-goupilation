@@ -3,8 +3,12 @@
 //***********************//
 
 import { getById } from "./elements.js";
-import { submitDates, addSelectedClips, saveSelectedClips, loadSavedClips, deleteSavedClips, saveClipsForVideo, loadSaveList } from "./clips-list.js";
-import { showExport, showImport, hideImportExport } from "./clips-import-export.js";
+import { submitDates, addSelectedClips,
+         showSaveDialog, hideSaveDialog, performSelect, performSave,
+         showLoadDialog, hideLoadDialog, performLoad,
+         showDeleteDialog, hideDeleteDialog, performDelete
+       } from "./clips-editor.js";
+import { showExportDialog, showImportDialog, hideImportExportDialog } from "./video-import-export.js";
 
 // Create buttons event handlers when page is loaded
 window.addEventListener("load", () => {
@@ -12,14 +16,20 @@ window.addEventListener("load", () => {
 
   getById("add-selected-button").addEventListener("click", addSelectedClips);
 
-  getById("save-button").addEventListener("click", saveSelectedClips);
-  getById("load-button").addEventListener("click", loadSavedClips);
-  getById("delete-button").addEventListener("click", deleteSavedClips);
+  getById("save-button").addEventListener("click", showSaveDialog);
+  getById("save-select").addEventListener("click", performSelect);
+  getById("save-confirm").addEventListener("click", performSave);
+  getById("save-cancel").addEventListener("click", hideSaveDialog);
 
-  getById("video-button").addEventListener("click", saveClipsForVideo);
+  getById("load-button").addEventListener("click", showLoadDialog);
+  getById("load-confirm").addEventListener("click", performLoad);
+  getById("load-cancel").addEventListener("click", hideLoadDialog);
 
-  getById("export-button").addEventListener("click", showExport);
-  getById("import-button").addEventListener("click", showImport);
-  getById("import-export-cancel").addEventListener("click", hideImportExport);
-  loadSaveList();
+  getById("delete-button").addEventListener("click", showDeleteDialog);
+  getById("delete-confirm").addEventListener("click", performDelete);
+  getById("delete-close").addEventListener("click", hideDeleteDialog);
+ 
+  getById("export-button").addEventListener("click", showExportDialog);
+  getById("import-button").addEventListener("click", showImportDialog);
+  getById("import-export-cancel").addEventListener("click", hideImportExportDialog);
 });
