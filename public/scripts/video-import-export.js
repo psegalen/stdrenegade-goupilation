@@ -28,9 +28,9 @@ export const showExportDialog = () => {
 }
 
 export const showShareDialog = () => {
-  const rootUrl = `${location.protocol}//${location.hostname}${location.port ? ':'+location.port : ''}`;
+  const rootUrl = location.href.replace("clips", "video");
   const videoComponent = JSON.stringify(loadVideo("video"));
-  const videoUrl = `${rootUrl}/public/video.html?video=${encodeURIComponent(videoComponent)}`;
+  const videoUrl = `${rootUrl}?video=${encodeURIComponent(videoComponent)}`;
 
   exportDialog(videoUrl);
 }
