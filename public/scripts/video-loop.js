@@ -6,7 +6,7 @@ import { hide, show } from "./elements.js";
 import { loadVideo } from "./video-persistence.js";
 
 // default values
-const DEFAULT_OVERLAY_URL = "/public/overlay.html";
+const DEFAULT_OVERLAY_URL = location.href.replace("video", "overlay");
 const DEFAULT_INTRO_OUTRO_URL = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Fgenerique.mp4?alt=media&token=94374b9a-27fc-43a8-ac5f-6f3b252f0771";
 const DEFAULT_TRANSITION_URL = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.mp4?alt=media&token=cee192d9-0897-408a-b5ca-03d8e410f498";
 
