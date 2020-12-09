@@ -117,9 +117,10 @@ const nextClip = (videoSource) => {
   const title = encodeURIComponent(clip.title);
   const creator = encodeURIComponent(clip.creator_name);
   const date = encodeURIComponent(clip.created_at);
+  const views = encodeURIComponent(clip.view_count);
 
   videoSource.src = getClipVideoURL(clip);
-  videoOverlay.src = `${overlayUrl}?title=${title}&creator=${creator}&date=${date}`;
+  videoOverlay.src = `${overlayUrl}?title=${title}&creator=${creator}&date=${date}&views=${views}`;
 
   videoIndex++;
 };

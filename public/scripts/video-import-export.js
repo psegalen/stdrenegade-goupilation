@@ -28,8 +28,21 @@ export const showExportDialog = () => {
 }
 
 export const showShareDialog = () => {
+  let video = loadVideo("video");
+
+  // filter data
+  const propertiesToKeep = ["creator_name", "title", "view_count", "created_at", "thumbnail_url"];
+  for(let clip of video.clips) {
+    for(let key in clip) {
+      if(!propertiesToKeep.includes(key)) {
+        delete clip[key];
+      }
+    }
+  }
+
+  // create url
   const rootUrl = window.location.origin + window.location.pathname.replace("clips", "video");
-  const videoComponent = JSON.stringify(loadVideo("video"));
+  const videoComponent = JSON.stringify(video);
   const videoUrl = `${rootUrl}?video=${encodeURIComponent(videoComponent)}`;
 
   exportDialog(videoUrl);

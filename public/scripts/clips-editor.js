@@ -22,6 +22,15 @@ let remoteClipsTable = createClipsTable("remote-clips-table");
 let localClipsTable = createClipsTable("local-clips-table");
 let video = new Video();
 
+export const viewLocalClips = () => {
+  hide(getById("remote-clips"));
+  show(getById("local-clips"));
+}
+
+export const viewRemoteClips = () => {
+  hide(getById("local-clips"));
+  show(getById("remote-clips"));
+}
 
 //***********************//
 // Fetch                 //
@@ -33,7 +42,7 @@ export const submitDates = () => {
 
   fetchClips(startDate, endDate).then((clips) => {
     // filter data
-    const propertiesToKeep = ["url", "creator_name", "title", "view_count", "created_at", "thumbnail_url"];
+    const propertiesToKeep = ["embed_url", "creator_name", "title", "view_count", "created_at", "thumbnail_url"];
     for(let clip of clips.data) {
       for(let key in clip) {
         if(!propertiesToKeep.includes(key)) {
@@ -53,6 +62,7 @@ export const addSelectedClips = () => {
   const concatClips = localClips.concat(remoteClips);
 
   localClipsTable.refresh(concatClips);
+  viewLocalClips();
 }
 
 
@@ -150,4 +160,18 @@ export const performDelete = () => {
   const name = getValueById("delete-name");
   deleteVideo(name);
   showDeleteDialog();
+}
+
+
+//***********************//
+// Video                 //
+//***********************//
+
+export const viewVideo = () => {
+  let video = loadVideo("video");
+  if(video.clips.length == 0) {
+    alert("Please select some clips, then [Save] and [Select] the latter.");
+  } else {
+    window.open("./video.html", "_blank");
+  }
 }

@@ -140,9 +140,12 @@ export class ClipsTable {
 	}
 
 	getCaptionRow() {
+		let row = getById(`${this.id}Caption`);
+		if(row) return row;
+
 		// row html
 		const template =
-			`<div class="divTableCaption">
+			`<div id="${this.id}Caption" class="divTableCaption">
 				<div class="horizontal">
 					<button id="${this.id}SelectAll" class="headerButton" title="Select all">&#9745;</button>
 					<button id="${this.id}UnselectAll" class="headerButton" title="Unselect all">&#9744;</button>
@@ -158,7 +161,7 @@ export class ClipsTable {
 				</div>
 			</div>`
 
-		let row = document.createElement("div");
+		row = document.createElement("div");
 		row.setAttribute("class", "divTableCaption");
 		row.innerHTML = template;
 
@@ -194,19 +197,33 @@ export class ClipsTable {
 				<img src="${clip.thumbnail_url}" />
 			</div>
 			<div class="divTableCell">
-				<a href="${clip.url}" target="blank">${clip.title}</a>
+				<div id=${this.id}Embed${i} class="embed-link" title="Preview clip">${clip.title}</div>
 				<div class="annotation">${clip.view_count} view(s)</div>
 			</div>
 			<div class="divTableCell">${clip.creator_name}</div>
 			<div class="divTableCell">${clip.created_at.replace("T", " &nbsp;&nbsp;").replace("Z", "")}</div>`;
 			
 		row = document.createElement("div");
+		row.setAttribute("id", `${this.id}Row${i}`);
 		row.setAttribute("class", "divTableRow");
 		row.innerHTML = template;
 
 		// row events
-		row.querySelector(`#${this.id}Selection${i}`).addEventListener("click", () => this.selectionChangedHandler(this.id, i))
-		row.querySelector(`#${this.id}Order${i}`).addEventListener("input", () => this.orderChangedHandler(this.id, i))
+		const embedClickHandler = () => {
+			// highlight row
+			let highlightedRow = document.querySelector(".highlightedRow");
+			if(highlightedRow) highlightedRow.classList.remove("highlightedRow");
+			getById(`${this.id}Row${i}`).classList.add("highlightedRow");
+
+			// display embed
+			let viewerContainer = getById("viewer-container");
+			viewerContainer.src = `${clip.embed_url}&parent=${location.hostname}&autoplay=true&muted=false`;
+			show(viewerContainer);
+		};
+
+		row.querySelector(`#${this.id}Embed${i}`).addEventListener("click", embedClickHandler);
+		row.querySelector(`#${this.id}Selection${i}`).addEventListener("click", () => this.selectionChangedHandler(this.id, i));
+		row.querySelector(`#${this.id}Order${i}`).addEventListener("input", () => this.orderChangedHandler(this.id, i));
 		
 		return row;
 	}
