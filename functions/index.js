@@ -11,14 +11,22 @@ admin.initializeApp();
 
 const getLatestGoupilation = require("./getLatestGoupilation");
 const addClipToLatestGoupilation = require("./addClipToLatestGoupilation");
+const createGoupilation = require("./createGoupilation");
+const getAllGoupilations = require("./getAllGoupilations");
 
 exports.getLatestGoupilation = functions
   .region("europe-west1") // Deploy in Belgium
   .https.onRequest(async (req, res) => {
-    console.log("Starting getLatestGoupilation ...");
     return cors(req, res, async () => {
-      console.log("CORS Ok ...");
       await getLatestGoupilation(admin, res);
+    });
+  });
+
+exports.getAllGoupilations = functions
+  .region("europe-west1") // Deploy in Belgium
+  .https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
+      await getAllGoupilations(admin, res);
     });
   });
 
@@ -27,5 +35,13 @@ exports.addClipToLatestGoupilation = functions
   .https.onRequest(async (req, res) => {
     return cors(req, res, async () => {
       await addClipToLatestGoupilation(admin, req, res);
+    });
+  });
+
+exports.createGoupilation = functions
+  .region("europe-west1")
+  .https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
+      await createGoupilation(admin, req, res);
     });
   });
