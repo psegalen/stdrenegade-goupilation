@@ -8,7 +8,7 @@ import { loadVideo } from "./video-persistence.js";
 // default values
 const DEFAULT_OVERLAY_URL = window.location.origin + window.location.pathname.replace("video", "overlay");
 const DEFAULT_INTRO_OUTRO_URL = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Fgenerique.mp4?alt=media&token=94374b9a-27fc-43a8-ac5f-6f3b252f0771";
-const DEFAULT_TRANSITION_URL = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.mp4?alt=media&token=cee192d9-0897-408a-b5ca-03d8e410f498";
+const DEFAULT_TRANSITION_URL = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.webm?alt=media&token=c991e809-5b4e-4604-819c-84a1913968c0";
 
 // read video definition either from the url query or from the local storage 
 const getVideo = () => {
@@ -23,104 +23,91 @@ const getVideo = () => {
 }
 
 // video definition
-let video = getVideo();
-let overlayUrl = video.overlayUrl ? video.overlayUrl : DEFAULT_OVERLAY_URL;
-let introUrl = video.introUrl ? video.introUrl : DEFAULT_INTRO_OUTRO_URL;
-let outroUrl = video.outroUrl ? video.outroUrl : DEFAULT_INTRO_OUTRO_URL;
-let transitionUrl = video.transitionUrl ? video.transitionUrl : DEFAULT_TRANSITION_URL;
+const video = getVideo();
+const overlayUrl = video.overlayUrl ? video.overlayUrl : DEFAULT_OVERLAY_URL;
+const introUrl = video.introUrl ? video.introUrl : DEFAULT_INTRO_OUTRO_URL;
+const outroUrl = video.outroUrl ? video.outroUrl : DEFAULT_INTRO_OUTRO_URL;
+const transitionUrl = video.transitionUrl ? video.transitionUrl : DEFAULT_TRANSITION_URL;
 
+let transitionPlayer;
 let videoIndex;
-
-// video players and overlay
-let videoPlayer1, videoPlayer2;
-let videoSource1, videoSource2;
-let videoOverlay;
 
 // players initialization
 const initVideoPlayers = () => {
-
   if (video.clips.length > 0) {
     // init members
-    videoOverlay = document.getElementById("overlay-container");
-    videoPlayer1 = document.getElementById("player1");
-    videoPlayer2 = document.getElementById("player2");
+    const videoPlayer1 = document.getElementById("videoPlayer1");
+    const videoPlayer2 = document.getElementById("videoPlayer2");
+
+    transitionPlayer = document.getElementById("transitionPlayer");
+    transitionPlayer.src = transitionUrl;
+    transitionPlayer.load();
+
     videoIndex = 0;
 
-    // create video sources
-    videoSource1 = addVideoSource(videoPlayer1, introUrl);
-    videoSource2 = addVideoSource(videoPlayer2, transitionUrl);
-
     // set event handlers
-    videoPlayer1.addEventListener("ended", clipEndedHandler);
-    videoPlayer2.addEventListener("ended", transitionEndedHandler);
+    videoPlayer1.addEventListener("ended", () => videoLoopHandler(videoPlayer2, videoPlayer1));
+    videoPlayer2.addEventListener("ended", () => videoLoopHandler(videoPlayer1, videoPlayer2));
 
-    // load videos
-    videoPlayer1.load();
-    videoPlayer2.load();
-
-    // set play event
-    show(videoPlayer1);
-    videoPlayer1.play();
-
+    // start the loop once the transition video is available
+    transitionPlayer.onloadedmetadata = () => {
+      videoLoopHandler(videoPlayer1, videoPlayer2);
+    };
+    
   } else {
     alert("Select clips using clips.html first");
   }
 };
 
-const addVideoSource = (videoPlayer, source) => {
-  const videoSource = document.createElement("source");
-  videoSource.setAttribute("type", "video/mp4");
-  videoSource.src = source;
+// video loop
+const videoLoopHandler = (runningPlayer, preloadPlayer) => {
+  console.log("*** " + videoIndex + " ***");
+  if(videoIndex > video.clips.length + 1) return;
 
-  videoPlayer.appendChild(videoSource);
+  // transition
+  const transitionHandler = () => {
+    console.log("==> transition: " + this.id + " " + this.src + " " + this.duration * 1000 + " " + transitionPlayer.duration);
+    //const delay = (runningPlayer.duration - transitionPlayer.duration/2) * 1000;
+    //setTimeout(() => transitionPlayer.play(), delay);
+  };
+  runningPlayer.onloadedmetadata = transitionHandler.bind(runningPlayer);
 
-  return videoSource;
-};
-
-// clip ended: play transition and load next clip
-const clipEndedHandler = () => {
-  // start transition
-  show(videoPlayer2);
-  hide(videoPlayer1);
-  hide(videoOverlay);
-
-  videoPlayer2.play();
-
-  // load next clip/video
-  if (videoIndex < video.clips.length) {
-    nextClip(videoSource1);
-  } else {
-    videoSource1.src = outroUrl;
-    videoPlayer1.removeEventListener("ended", clipEndedHandler);
+  if(videoIndex == 0) {
+    runningPlayer.src = introUrl;
+    runningPlayer.load();
   }
-  videoPlayer1.load();
-};
 
-// transition ended: play next clip
-const transitionEndedHandler = () => {
-  // start next clip/video
-  show(videoPlayer1);
-  hide(videoPlayer2);
+  // play next video
+  show(runningPlayer);
+  hide(preloadPlayer);
+  runningPlayer.play();
 
-  if (isClipURL(videoSource1.src)) {
+  // show overlay
+  const videoOverlay = document.getElementById("overlay-container");
+  if(videoIndex >= 1 && videoIndex <= video.clips.length) {
+    const clip = video.clips[videoIndex - 1];
+    const title = encodeURIComponent(clip.title);
+    const creator = encodeURIComponent(clip.creator_name);
+    const date = encodeURIComponent(clip.created_at);
+    const views = encodeURIComponent(clip.view_count);
+
+    videoOverlay.src = `${overlayUrl}?title=${title}&creator=${creator}&date=${date}&views=${views}`;
     show(videoOverlay);
+
   } else {
     hide(videoOverlay);
   }
 
-  videoPlayer1.play();
-};
+  // load following clip/video
+  if(videoIndex < video.clips.length) {
+    preloadPlayer.src = getClipVideoURL(video.clips[videoIndex]);
+  } else {
+    preloadPlayer.src = outroUrl;
+  }
+  preloadPlayer.load();
 
-// clip functions
-const nextClip = (videoSource) => {
-  const clip = video.clips[videoIndex];
-  const title = encodeURIComponent(clip.title);
-  const creator = encodeURIComponent(clip.creator_name);
-  const date = encodeURIComponent(clip.created_at);
-  const views = encodeURIComponent(clip.view_count);
-
-  videoSource.src = getClipVideoURL(clip);
-  videoOverlay.src = `${overlayUrl}?title=${title}&creator=${creator}&date=${date}&views=${views}`;
+  console.log("*** runningPlayer: " + runningPlayer.id + " " + runningPlayer.src);
+  console.log("*** preloadPlayer: " + preloadPlayer.id + " " + preloadPlayer.src);
 
   videoIndex++;
 };
@@ -128,10 +115,6 @@ const nextClip = (videoSource) => {
 const getClipVideoURL = (clip) => {
   const index = clip.thumbnail_url.indexOf("-preview-");
   return clip.thumbnail_url.substring(0, index) + ".mp4";
-};
-
-const isClipURL = (url) => {
-  return url.startsWith("https://clips");
 };
 
 window.addEventListener("load", initVideoPlayers);
