@@ -13,12 +13,21 @@ const getLatestGoupilation = require("./getLatestGoupilation");
 const addClipToLatestGoupilation = require("./addClipToLatestGoupilation");
 const createGoupilation = require("./createGoupilation");
 const getAllGoupilations = require("./getAllGoupilations");
+const getConfigGoupilation = require("./getConfigGoupilation");
 
 exports.getLatestGoupilation = functions
   .region("europe-west1") // Deploy in Belgium
   .https.onRequest(async (req, res) => {
     return cors(req, res, async () => {
       await getLatestGoupilation(admin, res);
+    });
+  });
+
+exports.getConfigGoupilation = functions
+  .region("europe-west1") // Deploy in Belgium
+  .https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
+      await getConfigGoupilation(admin, res);
     });
   });
 
