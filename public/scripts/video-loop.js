@@ -4,11 +4,12 @@
 
 import { hide, show } from "./elements.js";
 import { loadVideo } from "./video-persistence.js";
+import VideoManager from "./videoManager.js";
 
 // default values
 const DEFAULT_OVERLAY_URL = window.location.origin + window.location.pathname.replace("video", "overlay");
-const DEFAULT_INTRO_OUTRO_URL = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Fgenerique.mp4?alt=media&token=94374b9a-27fc-43a8-ac5f-6f3b252f0771";
-const DEFAULT_TRANSITION_URL = "https://firebasestorage.googleapis.com/v0/b/goupilation.appspot.com/o/media%2Ftransition.webm?alt=media&token=c991e809-5b4e-4604-819c-84a1913968c0";
+const DEFAULT_INTRO_OUTRO_URL = "https://studiorenegade.fr/static/goupilation/generique.mp4";
+const DEFAULT_TRANSITION_URL = "https://studiorenegade.fr/static/goupilation/transition.webm";
 
 // read video definition either from the url query or from the local storage 
 const getVideo = () => {
@@ -31,6 +32,7 @@ const transitionUrl = video.transitionUrl ? video.transitionUrl : DEFAULT_TRANSI
 
 let transitionPlayer;
 let videoIndex;
+let videoManager;
 
 // players initialization
 const initVideoPlayers = () => {
@@ -38,6 +40,7 @@ const initVideoPlayers = () => {
     // init members
     const videoPlayer1 = document.getElementById("videoPlayer1");
     const videoPlayer2 = document.getElementById("videoPlayer2");
+    videoManager = new VideoManager(videoPlayer1, videoPlayer2)
 
     transitionPlayer = document.getElementById("transitionPlayer");
     transitionPlayer.src = transitionUrl;
@@ -46,13 +49,17 @@ const initVideoPlayers = () => {
     videoIndex = 0;
 
     // set event handlers
-    videoPlayer1.addEventListener("ended", () => videoLoopHandler(videoPlayer2, videoPlayer1));
-    videoPlayer2.addEventListener("ended", () => videoLoopHandler(videoPlayer1, videoPlayer2));
+    videoPlayer2.addEventListener("ended", () => videoLoopHandler(0, 1));
+    videoPlayer1.addEventListener("ended", () => videoLoopHandler(1, 0));
+
+    videoPlayer2.addEventListener("loadedmetadata", () => videoManager.loadedMetadata(1));
+    videoPlayer1.addEventListener("loadedmetadata", () => videoManager.loadedMetadata(0));
 
     // start the loop once the transition video is available
-    transitionPlayer.onloadedmetadata = () => {
-      videoLoopHandler(videoPlayer1, videoPlayer2);
-    };
+    transitionPlayer.addEventListener("loadedmetadata", () => {
+      videoManager.transitionDuration = transitionPlayer.duration;
+      videoLoopHandler(0, 1);
+    });
     
   } else {
     alert("Select clips using clips.html first");
@@ -60,17 +67,11 @@ const initVideoPlayers = () => {
 };
 
 // video loop
-const videoLoopHandler = (runningPlayer, preloadPlayer) => {
-  console.log("*** " + videoIndex + " ***");
+const videoLoopHandler = (runningIndex, preloadIndex) => {
+  const runningPlayer = videoManager.players[runningIndex];
+  const preloadPlayer = videoManager.players[preloadIndex];
+  console.log("*** " + videoIndex + " *** " + videoManager.players.length + " r " + runningIndex + " p " + preloadIndex);
   if(videoIndex > video.clips.length + 1) return;
-
-  // transition
-  const transitionHandler = () => {
-    console.log("==> transition: " + this.id + " " + this.src + " " + this.duration * 1000 + " " + transitionPlayer.duration);
-    //const delay = (runningPlayer.duration - transitionPlayer.duration/2) * 1000;
-    //setTimeout(() => transitionPlayer.play(), delay);
-  };
-  runningPlayer.onloadedmetadata = transitionHandler.bind(runningPlayer);
 
   if(videoIndex == 0) {
     runningPlayer.src = introUrl;
@@ -102,6 +103,7 @@ const videoLoopHandler = (runningPlayer, preloadPlayer) => {
   if(videoIndex < video.clips.length) {
     preloadPlayer.src = getClipVideoURL(video.clips[videoIndex]);
   } else {
+    videoManager.loadingOutro = true;
     preloadPlayer.src = outroUrl;
   }
   preloadPlayer.load();
