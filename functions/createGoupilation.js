@@ -3,7 +3,7 @@ const createGoupilation = async (admin, req, res) => {
 
   console.log(goupilation);
   try {
-    await admin
+    const docRef = await admin
       .firestore()
       .collection("goupilations")
       .add({
@@ -11,7 +11,7 @@ const createGoupilation = async (admin, req, res) => {
         update_date: admin.firestore.Timestamp.now(),
       });
 
-    res.json({ status: "ok" });
+    res.json({ status: "ok", id: docRef.id });
   } catch (error) {
     res.status(400).json({
       status: "error",

@@ -1,15 +1,18 @@
 const getConfigGoupilation = async (admin, res) => {
-  const querySnapshot = await admin
+  const conf = await admin
     .firestore()
     .collection("config")
+    .doc("goupilation")
     .get();
-  if (!querySnapshot.empty) {
-    const config = querySnapshot.docs[0];
-    const goupilation = await config.data().goupilation.get();
-    res.json(goupilation.data());
+  if (conf.exists) {
+    const goupilation = await conf.data().ref.get();
+    res.json({ ...goupilation.data(), id: goupilation.id });
   } else {
     console.log("No goupilation!");
-    res.json(null);
+    res.status(400).json({
+      status: "error",
+      error: "Pas de goupilation configurée !",
+    });
   }
 };
 

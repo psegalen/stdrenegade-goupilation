@@ -19,7 +19,7 @@ const addClipToLatestGoupilation = async (admin, req, res) => {
         .doc(latestGoupilation.id)
         .update({
           update_date: admin.firestore.Timestamp.now(),
-          video_data: admin.firestore.FieldValue.arrayUnion(clip),
+          clips: admin.firestore.FieldValue.arrayUnion(clip),
         });
       res.json({
         status: "ok",
