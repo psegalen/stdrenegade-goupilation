@@ -45,7 +45,9 @@ export const showShareDialog = () => {
   const videoComponent = JSON.stringify(video);
   const videoUrl = `${rootUrl}?video=${encodeURIComponent(videoComponent)}`;
 
-  exportDialog(videoUrl);
+  const nl = String.fromCharCode(13);
+  const shareContent = `Share URL:${nl}${videoUrl}${nl}${nl}JSON:${nl}${videoComponent}`;
+  exportDialog(shareContent);
 }
 
 export const hideImportExportDialog = () => {
