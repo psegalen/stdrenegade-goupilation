@@ -53,6 +53,7 @@ export const submitDates = () => {
 
     // refresh remote clips table with filtered data
     remoteClipsTable.refresh(clips.data);
+    console.log(firebase.auth().currentUser);
   });
 }
 
