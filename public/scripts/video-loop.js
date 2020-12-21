@@ -3,7 +3,7 @@
 //***********************//
 
 import { hide, show } from "./elements.js";
-import { loadVideo } from "./video-persistence.js";
+import { loadChosenVideo, loadVideo } from "./video-persistence.js";
 import VideoManager from "./videoManager.js";
 
 // default values
@@ -11,24 +11,24 @@ const DEFAULT_OVERLAY_URL = window.location.origin + window.location.pathname.re
 const DEFAULT_INTRO_OUTRO_URL = "https://studiorenegade.fr/static/goupilation/generique.mp4";
 const DEFAULT_TRANSITION_URL = "https://studiorenegade.fr/static/goupilation/transition.webm";
 
+let video = null;
+let overlayUrl = DEFAULT_OVERLAY_URL;
+let introUrl = DEFAULT_INTRO_OUTRO_URL;
+let outroUrl = DEFAULT_INTRO_OUTRO_URL;
+let transitionUrl = DEFAULT_TRANSITION_URL;
+
 // read video definition either from the url query or from the local storage 
 const getVideo = () => {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  
-  if(urlParams.get("video")) {
-    return JSON.parse(urlParams.get("video"));
-  } else {
-    return loadVideo("video");
-  }
-}
+  loadChosenVideo().then(goup => {
+    video = goup;
+    if (goup.overlayUrl) overlayUrl = goup.overlayUrl;
+    if (goup.introUrl) introUrl = goup.introUrl;
+    if (goup.outroUrl) outroUrl = goup.outroUrl;
+    if (goup.transitionUrl) transitionUrl = goup.transitionUrl;
 
-// video definition
-const video = getVideo();
-const overlayUrl = video.overlayUrl ? video.overlayUrl : DEFAULT_OVERLAY_URL;
-const introUrl = video.introUrl ? video.introUrl : DEFAULT_INTRO_OUTRO_URL;
-const outroUrl = video.outroUrl ? video.outroUrl : DEFAULT_INTRO_OUTRO_URL;
-const transitionUrl = video.transitionUrl ? video.transitionUrl : DEFAULT_TRANSITION_URL;
+    initVideoPlayers();
+  });
+}
 
 let transitionPlayer;
 let videoIndex;
@@ -119,4 +119,4 @@ const getClipVideoURL = (clip) => {
   return clip.thumbnail_url.substring(0, index) + ".mp4";
 };
 
-window.addEventListener("load", initVideoPlayers);
+window.addEventListener("load", getVideo);

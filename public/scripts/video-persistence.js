@@ -4,28 +4,117 @@
 
 import { Video } from "./video-model.js";
 
+const apiRootUrl = "https://europe-west1-goupilation.cloudfunctions.net/";
+
+const showToast = (text) => Toastify({
+  text,
+  className: "info",
+  gravity: "top",
+  position: "center"
+}).showToast();
+
 export const saveVideo = (video) => {
-  localStorage.setItem(`save:${video.name}`, JSON.stringify(video));
+  return fetch(`${apiRootUrl}create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(video)
+  }).then(response => {
+    if (response.status === 200) {
+      showToast("Goupilation was successfully created on the server");
+    } else {
+      response.json().then((data) => {
+        console.warn("Response from server wasn't 200", response, data);
+        if (data && data.error) {
+          alert(data.error);
+        }
+      });
+    }
+  });
 };
 
-export const loadVideo = (name) => {
-  const savedVideo = localStorage.getItem(`save:${name}`);
-  if (savedVideo == null) {
-    return new Video();
-  } else {
-    return JSON.parse(savedVideo);
-  }
+export const loadVideo = (id) => {
+  return fetch(`${apiRootUrl}getById?id=${id}`)
+    .then(response => {
+      if (response.status === 200) {
+        return response.json().then(data => data);
+      } else {
+        return response.json().then(data => {
+          console.warn("Response from server wasn't 200", response, data);
+          if (data && data.error) {
+            alert(data.error);
+          }
+          return new Video();
+        });
+      }
+    });
 };
 
-export const deleteVideo = (name) => {
-  localStorage.removeItem(`save:${name}`);
+export const deleteVideo = (id) => {
+  return fetch(`${apiRootUrl}delete?id=${id}`, {
+    method: "DELETE"
+  }).then(response => {
+    if (response.status === 200) {
+      showToast("Goupilation was successfully deleted on the server");
+    } else {
+      response.json().then((data) => {
+        console.warn("Response from server wasn't 200", response, data);
+        if (data && data.error) {
+          alert(data.error);
+        }
+      });
+    }
+  });
 };
 
 export const getSaveNames = () => {
-  const keys = Object.keys(localStorage);
-  const names = [];
-  for (let key of keys) {
-    if (key.startsWith("save:")) names.push(key.substring(5));
-  }
-  return names.sort();
+  return fetch(`${apiRootUrl}getInfos`)
+  .then(response => {
+    if (response.status === 200) {
+      return response.json().then(data => data.sort((a, b) => a.name < b.name ? - 1 : 1));
+    } else {
+      return response.json().then(data => {
+        console.warn("Response from server wasn't 200", response, data);
+        if (data && data.error) {
+          alert(data.error);
+        }
+        return [];
+      });
+    }
+  });
+};
+
+export const chooseVideo = (id) => {
+  return fetch(`${apiRootUrl}configure?id=${id}`, {
+    method: "POST"
+  }).then(response => {
+    if (response.status === 200) {
+      showToast("Goupilation was successfully chosen as THE goupilation on the server");
+    } else {
+      response.json().then((data) => {
+        console.warn("Response from server wasn't 200", response, data);
+        if (data && data.error) {
+          alert(data.error);
+        }
+      });
+    }
+  });
+};
+
+export const loadChosenVideo = () => {
+  return fetch(`${apiRootUrl}getConfigured`)
+    .then(response => {
+      if (response.status === 200) {
+        return response.json().then(data => data);
+      } else {
+        return response.json().then(data => {
+          console.warn("Response from server wasn't 200", response, data);
+          if (data && data.error) {
+            alert(data.error);
+          }
+          return new Video();
+        });
+      }
+    });
 };

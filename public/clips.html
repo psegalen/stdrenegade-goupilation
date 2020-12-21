@@ -2,7 +2,11 @@
 <html>
   <head>
     <link rel="stylesheet" href="css/clips.css" />
+    <link rel="icon" type="images/ico" href="favicon.ico">
     <script type="module" src="scripts/clips-events.js"></script>
+    <title>Goupilation - Paramétrage</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   </head>
 
   <body>
@@ -55,12 +59,17 @@
         <button id="delete-button" class="button save-button" title="Delete a video">
           Delete
         </button>
+        <button id="choose-button" class="button save-button" title="Choose a video">
+          Choose a goupilation
+        </button>
+        <!--
         <button id="import-button" class="button share-button" title="Import saved videos">
           Import
         </button>
         <button id="export-button" class="button share-button" title="Export all saved videos">
           Export
         </button>
+        -->
         <button id="view-video" class="button switch-button" title="View the selected video">
           &gt;
         </button>
@@ -70,12 +79,10 @@
           <p>Use this view to:</p>
           <ul>
             <li> <b>[Save]</b> selections or <b>[Load]</b> and <b>[Delete]</b> previously saved selections.
-            <li> <b>[Import]</b> or <b>[Export]</b> all the saved selections.
             <li> <b>[<]</b> Switch to the clips fetching view to add new clips to the selection.
           </ul>
           <p>
             The <b>[Save]</b> dialog box can also be used to <b>[Select]</b> the clips to be played in the <a href="./video.html" target="_blank">video</a>.<br>
-            When a video is selected, a link is provided to share the latter with others.<br>
             The video can then be viewed by clicking on <b>[>]</b>
           </p>
         </span>
@@ -148,6 +155,22 @@
         <div class="modal-dialog-buttons">
           <button id="delete-confirm" class="button save-button" title = "Delete clips from browser storage">Delete</button>
           <button id="delete-close" class="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Choose dialog -->
+    <div id="choose-dialog" class="modal-dialog">
+      <div class="vertical">
+        <div style="display: table">
+          <div style="display: table-row">
+            <div style="display: table-cell">Select save to choose:&nbsp;</div>
+            <div style="display: table-cell"><select id="choose-name"></select></div>
+          </div>
+        </div>
+        <div class="modal-dialog-buttons">
+          <button id="choose-confirm" class="button save-button" title="Choose the goupilation">Choose this goupilation</button>
+          <button id="choose-close" class="button">Close</button>
         </div>
       </div>
     </div>

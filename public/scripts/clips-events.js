@@ -7,7 +7,7 @@ import { submitDates, addSelectedClips,
          showSaveDialog, hideSaveDialog, performSelect, performSave,
          showLoadDialog, hideLoadDialog, performLoad,
          showDeleteDialog, hideDeleteDialog, performDelete,
-         viewRemoteClips, viewLocalClips, viewVideo
+         viewRemoteClips, viewLocalClips, viewVideo, showChooseDialog, performChoose, hideChooseDialog
        } from "./clips-editor.js";
 import { showExportDialog, showImportDialog, hideImportExportDialog } from "./video-import-export.js";
 
@@ -32,10 +32,16 @@ const addAllEvents = () => {
     getById("delete-button").addEventListener("click", showDeleteDialog);
     getById("delete-confirm").addEventListener("click", performDelete);
     getById("delete-close").addEventListener("click", hideDeleteDialog);
+
+    getById("choose-button").addEventListener("click", showChooseDialog);
+    getById("choose-confirm").addEventListener("click", performChoose);
+    getById("choose-close").addEventListener("click", hideChooseDialog);
   
+    /*
     getById("export-button").addEventListener("click", showExportDialog);
     getById("import-button").addEventListener("click", showImportDialog);
     getById("import-export-cancel").addEventListener("click", hideImportExportDialog);
+    */
 
     getById("view-video").addEventListener("click", viewVideo);
 
@@ -72,6 +78,11 @@ window.addEventListener("load", () => {
     // Show blocking sign in modal
     getById("sign-in-wall").style.display = "flex";
     getById("sign-in-confirm").addEventListener("click", signInUSer);
+    getById("sign-in-password").addEventListener("keypress", (e) => {
+      if (e.key.toLocaleLowerCase() === "enter") {
+        signInUSer();
+      }
+    });
   } else {
     addAllEvents();
   }

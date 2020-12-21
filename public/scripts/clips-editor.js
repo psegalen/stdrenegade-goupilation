@@ -5,7 +5,7 @@
 import { getById, getValueById, show, hide, addContent } from "./elements.js";
 import { fetchClips } from "./twitch.js";
 import { showShareDialog } from "./video-import-export.js";
-import { loadVideo, saveVideo, deleteVideo, getSaveNames } from "./video-persistence.js";
+import { loadVideo, saveVideo, deleteVideo, getSaveNames, chooseVideo, loadChosenVideo } from "./video-persistence.js";
 import { ClipsTable } from "./clips-table.js";
 import { Video } from "./video-model.js";
 
@@ -105,8 +105,7 @@ const save = (name) => {
   video.outroUrl = getValueById("save-outro");
   video.transitionUrl = getValueById("save-transition");
 
-  saveVideo(video);
-  hideSaveDialog();
+  saveVideo(video).then(() => hideSaveDialog());
 }
 
 
@@ -115,15 +114,17 @@ const save = (name) => {
 //***********************//
 
 export const showLoadDialog = () => {
-  const saveNames = getSaveNames();
-  const nameCombo = getById("load-name");
+  getSaveNames().then((goups) => {
+    const nameCombo = getById("load-name");
 
-  nameCombo.innerHTML = "";
-  for(let name of saveNames) {
-    addContent(nameCombo, "option", name, [{key: "value", value: name}]);
-  }
+    nameCombo.innerHTML = "";
+    for(let i = 0; i < goups.length; i++) {
+      const goup = goups[i];
+      addContent(nameCombo, "option", `${goup.name} (${goup.nbClips} clips)`, [{key: "value", value: goup.id}]);
+    }
 
-  show(getById("load-dialog"), "flex");
+    show(getById("load-dialog"), "flex");
+  });
 }
 
 export const hideLoadDialog = () => {
@@ -131,9 +132,10 @@ export const hideLoadDialog = () => {
 }
 
 export const performLoad = () => {
-  video = loadVideo(getValueById("load-name"));
-  localClipsTable.refresh(video.clips);
-  hide(getById("load-dialog"));
+  loadVideo(getValueById("load-name")).then(video => {
+    localClipsTable.refresh(video.clips);
+    hide(getById("load-dialog"));
+  });
 }
 
 
@@ -142,15 +144,17 @@ export const performLoad = () => {
 //***********************//
 
 export const showDeleteDialog = () => {
-  const saveNames = getSaveNames();
-  const nameCombo = getById("delete-name");
+  getSaveNames().then((goups) => {
+    const nameCombo = getById("delete-name");
 
-  nameCombo.innerHTML = "";
-  for(let name of saveNames) {
-    addContent(nameCombo, "option", name, [{key: "value", value: name}]);
-  }
+    nameCombo.innerHTML = "";
+    for(let i = 0; i < goups.length; i++) {
+      const goup = goups[i];
+      addContent(nameCombo, "option", `${goup.name} (${goup.nbClips} clips)`, [{key: "value", value: goup.id}]);
+    }
 
-  show(getById("delete-dialog"), "flex");
+    show(getById("delete-dialog"), "flex");
+  });
 }
 
 export const hideDeleteDialog = () => {
@@ -159,8 +163,34 @@ export const hideDeleteDialog = () => {
 
 export const performDelete = () => {
   const name = getValueById("delete-name");
-  deleteVideo(name);
-  showDeleteDialog();
+  deleteVideo(name).then(() => hideDeleteDialog());
+}
+
+//***********************//
+// Choose                //
+//***********************//
+
+export const showChooseDialog = () => {
+  getSaveNames().then((goups) => {
+    const nameCombo = getById("choose-name");
+
+    nameCombo.innerHTML = "";
+    for(let i = 0; i < goups.length; i++) {
+      const goup = goups[i];
+      addContent(nameCombo, "option", `${goup.name} (${goup.nbClips} clips)`, [{key: "value", value: goup.id}]);
+    }
+
+    show(getById("choose-dialog"), "flex");
+  });
+}
+
+export const hideChooseDialog = () => {
+  hide(getById("choose-dialog"));
+}
+
+export const performChoose = () => {
+  const name = getValueById("choose-name");
+  chooseVideo(name).then(() => hideChooseDialog());
 }
 
 
@@ -169,10 +199,11 @@ export const performDelete = () => {
 //***********************//
 
 export const viewVideo = () => {
-  let video = loadVideo("video");
-  if(video.clips.length == 0) {
-    alert("Please select some clips, then [Save] and [Select] the latter.");
-  } else {
-    window.open("./video.html", "_blank");
-  }
+  loadChosenVideo().then(video => {
+    if(video.clips.length == 0) {
+      alert("Please select some clips, then [Save] and [Choose a goupilation].");
+    } else {
+      window.open("./video.html", "_blank");
+    }
+  });
 }
