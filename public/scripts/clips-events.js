@@ -73,17 +73,20 @@ const signInUSer = () => {
 
 // Create buttons event handlers when page is loaded
 window.addEventListener("load", () => {
-  console.log("Firebase user:", firebase.auth().currentUser);
-  if (!firebase.auth().currentUser) {
-    // Show blocking sign in modal
-    getById("sign-in-wall").style.display = "flex";
-    getById("sign-in-confirm").addEventListener("click", signInUSer);
-    getById("sign-in-password").addEventListener("keypress", (e) => {
+  firebase.auth().onAuthStateChanged(firebaseUser =>{
+    if(!firebaseUser){
+      console.log("Firebase user:", firebaseUser);
+       // Show blocking sign in modal
+      getById("sign-in-wall").style.display = "flex";
+      getById("sign-in-confirm").addEventListener("click", signInUSer);
+      getById("sign-in-password").addEventListener("keypress", (e) => {
       if (e.key.toLocaleLowerCase() === "enter") {
         signInUSer();
       }
     });
-  } else {
-    addAllEvents();
-  }
+    }else{
+      addAllEvents();
+
+    }
+  })
 });
