@@ -7,8 +7,8 @@ export default class VideoManager {
     // Transitions const 
     // transitionlength = 2800
     introLength = 10664
-    transitionOverlap = 700
-    breakBetweenTwoVideos = 700
+    transitionOverlap = 600
+    breakBetweenTwoVideos = 400
 
 
     constructor(player1, player2) {
