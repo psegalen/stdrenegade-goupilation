@@ -55,6 +55,9 @@ const initVideoPlayers = () => {
     videoPlayer2.addEventListener("loadedmetadata", () => videoManager.loadedMetadata(1));
     videoPlayer1.addEventListener("loadedmetadata", () => videoManager.loadedMetadata(0));
 
+    videoPlayer1.addEventListener("play", ()=> videoManager.startTransitionTimeOutOnPlay(videoIndex) )
+    videoPlayer2.addEventListener("play", ()=> videoManager.startTransitionTimeOutOnPlay(videoIndex) )
+
     // start the loop once the transition video is available
     transitionPlayer.addEventListener("loadedmetadata", () => {
       videoManager.transitionDuration = transitionPlayer.duration;
@@ -67,7 +70,9 @@ const initVideoPlayers = () => {
 };
 
 // video loop
+
 const videoLoopHandler = (runningIndex, preloadIndex) => {
+  
   const runningPlayer = videoManager.players[runningIndex];
   const preloadPlayer = videoManager.players[preloadIndex];
   console.log("*** " + videoIndex + " *** " + videoManager.players.length + " r " + runningIndex + " p " + preloadIndex);
@@ -81,7 +86,9 @@ const videoLoopHandler = (runningIndex, preloadIndex) => {
   // play next video
   show(runningPlayer);
   hide(preloadPlayer);
-  runningPlayer.play();
+  setTimeout(()=>{
+    runningPlayer.play();
+  },videoManager.breakBetweenTwoVideos)
 
   // show overlay
   const videoOverlay = document.getElementById("overlay-container");
@@ -110,7 +117,6 @@ const videoLoopHandler = (runningIndex, preloadIndex) => {
 
   console.log("*** runningPlayer: " + runningPlayer.id + " " + runningPlayer.src);
   console.log("*** preloadPlayer: " + preloadPlayer.id + " " + preloadPlayer.src);
-
   videoIndex++;
 };
 
@@ -120,3 +126,4 @@ const getClipVideoURL = (clip) => {
 };
 
 window.addEventListener("load", getVideo);
+
